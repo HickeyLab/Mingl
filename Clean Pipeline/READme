@@ -1,1 +1,12 @@
 This is the clean pipeline to run MINGLE and perform analysis as of 20250620.
+
+Files and order of use:
+1) CleanCalculateCentroids - you will need a .csv file containing all cells in a spatial dataset with columns that correspond to the cell type and assigned neighborhood or niche at minimum. This code will calculate the starting centroids (prior) that will be necessary to feed into MINGLE. 
+2) CleanGMM_NoOutput - you will use your original data .csv and the .csv output from your calulated centroids. This will actually run MINGLE and will output a .csv where each cell has a probability of belonging to each neighborhood.
+
+From there, you can do the analysis in any order.
+3) CleanEdgeAnalysis - investigates cells that are positive for more than one neighborhood (with a probability greater than a set threshold).
+4) CleanHierarchicalFollicle - clustering code based on each cell's assigned neighborhood probability, bin probabilities, cluster based on KNN and investigate follicles.
+5) CleanInvestigateBiology - this code investigates the output of CleanHierarchicalFollicle and understand how cell types and neighborhoods change as you move through the transition zone at the edge of the follicle.
+
+Each code has comments that describe further instructions for how to use them.
