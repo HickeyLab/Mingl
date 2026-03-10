@@ -131,7 +131,7 @@ run.omit = [
   "**/test_*.py",
 ]
 run.patch = [ "subprocess" ]
-run.source = [ "mingle" ]
+run.source = [ "MINGLE" ]
 
 [tool.cruft]
 skip = [
