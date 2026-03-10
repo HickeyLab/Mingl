@@ -39,8 +39,8 @@ dependencies = [
 ]
 # https://docs.pypi.org/project_metadata/#project-urls
 urls.Documentation = "https://MINGLE.readthedocs.io/"
-urls.Homepage = "https://github.com/jwrightd/MINGLE"
-urls.Source = "https://github.com/jwrightd/MINGLE"
+urls.Homepage = "https://github.com/HickeyLab/Mingle"
+urls.Source = "https://github.com/HickeyLab/Mingle"
 
 [dependency-groups]
 dev = [

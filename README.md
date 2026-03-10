@@ -31,7 +31,7 @@ pip install MINGLE
 1. Install the latest development version:
 
 ```bash
-pip install git+https://github.com/jwrightd/MINGLE.git@main
+pip install git+https://github.com/HickeyLab/Mingle.git@main
 ```
 
 ## Release notes
