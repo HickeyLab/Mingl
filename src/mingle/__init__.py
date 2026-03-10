@@ -1,7 +1,11 @@
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 from . import pl, pp, tl
 
-__all__ = ["pl", "pp", "tl"]
+# Try to get the installed package version; fall back if not installed
+try:
+    __version__ = version("MINGLE")  # must match [project].name in pyproject.toml
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 
-__version__ = version("MINGLE")
+__all__ = ["pl", "pp", "tl", "__version__"]
