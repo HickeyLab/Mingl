@@ -5,13 +5,18 @@ requires = [ "hatchling" ]
 [project]
 name = "MINGLE"
 version = "0.0.1"
-description = "UsMulticellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification."
+description = "Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification."
 readme = "README.md"
 license = { file = "LICENSE" }
 maintainers = [
-  { name = "James Wright", email = "james.wright@duke.edu" },
+   
+    { name = "Kyra Van Batavia", email = "kyra.vanbatavia@duke.edu"},
+    { name = "Annette Chen", email = "annette.chen@duke.edu" },
+    { name = "James Wright", email = "james.wright@duke.edu" },
 ]
 authors = [
+  { name = "Kyra Van Batavia"},
+  { name = "Annette Chen"},
   { name = "James Wright" },
 ]
 requires-python = ">=3.11"
