@@ -92,7 +92,8 @@ def KNN2(
         add = np.arange(neighbor_idx.shape[0]) * neighbor_idx.shape[1]
         sorted_indices = neighbor_idx.flatten()[args + add[:, None]]
 
-        neighbors = tissue.obs.index.values[sorted_indices]
+        obs_index = np.asarray(tissue.obs.index.to_numpy())
+        neighbors = obs_index[sorted_indices]
         return neighbors.astype(np.int32)
 
 
