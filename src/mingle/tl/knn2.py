@@ -12,7 +12,7 @@ def KNN2(
     y_key: str = "y",
     region_key: str = "unique_region",
     cluster_col: str = "cell_type",
-    ks: Sequence[int] = (5, 10, 20, 300),
+    ks: Sequence[int] = (5, 10, 20, 100, 300),
     keep_obs_cols: Optional[Sequence[str]] = None,   # <-- NEW
 ) -> Dict[int, pd.DataFrame]:
     """

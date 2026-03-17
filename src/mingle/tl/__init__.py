@@ -11,3 +11,4 @@ from .grad import *
 from .gb import *
 from .utils_adata import *
 from .compute_proportions import *
+#from .gmm_gpu import *
