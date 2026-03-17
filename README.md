@@ -1,5 +1,4 @@
-# MINGLE
-<img width="50%" alt="MINGLE_Logo" src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67" />
+# MINGLE <img width="50%" alt="MINGLE_Logo" src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67" />
 
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
