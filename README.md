@@ -18,6 +18,8 @@ in particular, the [API documentation][].
 You need to have Python 3.11 or newer installed on your system.
 If you don't have Python installed, we recommend installing [uv][].
 
+We also recommend that you install MINGLE into a new environment to avoid any dependency conflicts.
+
 There are several alternative options to install MINGLE:
 
 <!--
