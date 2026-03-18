@@ -1,16 +1,6 @@
-<p align="center" style="margin-bottom: 0;">
-  <img src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67"
-       width="120"
-       alt="MINGLE Logo"/>
-</p>
+# MINGLE
 
-<h1 align="center" style="margin-top: 0;">
-  MINGLE
-</h1>
-
-<p align="center">
-  Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification.
-</p>
+Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification.
 
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
