@@ -1,3 +1,5 @@
+<br><br>
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67" width="120" alt="MINGLE Logo"/>
 </p>
@@ -5,7 +7,7 @@
 <h1 align="center">MINGLE</h1>
 
 <p align="center">
-  Multicellular Neighborhood Analysis using Gaussian Mixture Models...
+  Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification.
 </p>
 
 [![Tests][badge-tests]][tests]
@@ -13,8 +15,6 @@
 
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/jwrightd/MINGLE/test.yaml?branch=main
 [badge-docs]: https://img.shields.io/readthedocs/MINGLE
-
-Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification.
 
 ## Getting started
 
