@@ -2,7 +2,7 @@ import anndata as ad
 import pandas as pd
 import numpy as np
 import cupy as cp
-from .knn import KNN
+from .knn2 import KNN2
 
 def gpu_gmm_probability(
     cells: ad.AnnData,
@@ -10,10 +10,11 @@ def gpu_gmm_probability(
     *,
     cluster_col: str = "Cell Type",
     neighborhood_col: str = "Neighborhood",
+    region_key: str = "unique_region",
     k: int = 10,
     batch_size: int = 20000,
 ):
-    windows = KNN(cells, cluster_col=cluster_col)
+    windows = KNN2(cells, cluster_col=cluster_col, region_key=region_key)
     win = windows[k].copy()
 
     win[cluster_col] = cells.obs[cluster_col].values
