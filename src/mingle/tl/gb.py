@@ -618,7 +618,7 @@ def gb_local_score_gradients(
         vmax = float(np.nanpercentile(plot_obs[out_mag_norm].to_numpy(), vmax_pct)) if len(plot_obs) else 1.0
         vmin = 0.0
 
-        fig1 = plt.figure(figsize=figsize, dpi=100)
+        fig1 = plt.figure(figsize=figsize, dpi=300)
         ax1 = plt.gca()
         ax1.scatter(
             plot_obs[x_key], plot_obs[y_key],
@@ -641,7 +641,7 @@ def gb_local_score_gradients(
         sm = ScalarMappable(cmap=cmap, norm=norm)
         sm.set_array([])
 
-        fig2 = plt.figure(figsize=(4, 4), dpi=100)
+        fig2 = plt.figure(figsize=(4, 4), dpi=300)
 #        fig2.subplots_adjust(right=0.85)
 
         cb_ax = fig2.add_axes([0.15, 0.05, 0.06, 0.9])
