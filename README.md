@@ -1,6 +1,6 @@
 <h1 style="display: flex; align-items: center; gap: 10px;">
   MINGLE
-  <img src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67" width="60" alt="MINGLE Logo"/>
+  <img src="https://github.com/user-attachments/assets/367aa642-5639-4573-bc6c-f520f3bb9e67" width="100" alt="MINGLE Logo"/>
 </h1>
 
 [![Tests][badge-tests]][tests]
