@@ -63,6 +63,8 @@ def cpu_gmm_probability(
     k: int = 10,
     threshold: float = 0.25,  # Probability threshold for counting
     num_processes: Optional[int] = None,  # Optional: number of processes for parallelism (defaults to max CPUs)
+    prob_key: str = "neighborhood_probabilities",
+    prob_variable_key: str = "neighborhood_probability_neighborhoods",
 ) -> ad.AnnData:
     """
     Calculate GMM probabilities for each cell's assigned neighborhood and return the AnnData object with probabilities stored in `obsm`.
@@ -133,8 +135,8 @@ def cpu_gmm_probability(
     probabilities_df = pd.DataFrame(probabilities_list, index=windows2.index)
 
     # Step 3: Attach probabilities to AnnData object (store in obsm)
-    CELLS_ADATA.obsm["neighborhood_probabilities"] = probabilities_df.values
-    CELLS_ADATA.uns["neighborhood_probability_neighborhoods"] = list(probabilities_df.columns)
+    CELLS_ADATA.obsm[prob_key] = probabilities_df.values
+    CELLS_ADATA.uns[prob_variable_key] = list(probabilities_df.columns)
 
     # Return the updated AnnData object
     return CELLS_ADATA
