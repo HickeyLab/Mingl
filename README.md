@@ -10,17 +10,23 @@ Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a pr
 
 ## Getting started
 
+MINGLE is a set of tools and plotting functions for identifying and quantifying borders between hierarchical units and gradients of changing cellular organization across these interfaces. MINGLE is also a tool for investigating heterogeneity in hierarchical tissue organization across disease states, between patients, or across tissue samples from the same patient, and can identify changes in cellular organization even when anchor cell types remain unchanged.
+MINGLE also includes a tool for suggesting a biologically-informed cluster number range as a starting point for hierarchical spatial organization analysis.
+
+MINGLE's main tool can be run on MacOS or WindowsOS using CPU, and is also equipped with a GPU accelerated version compatible with cupy and WindowsOS as of version 0.0.1.
+
+Please see instructions on installation and our recommended use below. Happy exploration of "life on the edge" in borders between spatial organization of our tissues!
+
 Please refer to the [documentation][],
 in particular, the [API documentation][].
 
 ## Installation
 
-You need to have Python 3.11 or newer installed on your system.
-If you don't have Python installed, we recommend installing [uv][].
+Python 3.11 or newer is required for installation on your system.
 
-We also recommend that you install MINGLE into a new environment to avoid any dependency conflicts.
+We recommend that you install MINGLE into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below.
 
-There are several alternative options to install MINGLE:
+There are two options to install MINGLE:
 
 <!--
 1) Install the latest release of `MINGLE` from [PyPI][]:
