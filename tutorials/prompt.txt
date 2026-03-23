@@ -1,0 +1,15 @@
+Codex, please read all the files in this folder and focus on all the .ipynb file in the tutorial folders. 
+
+Please update the .ipynb file in the tutorial folder with fully annotated sections / ready to be published .ipynb files. Some of these functions might be refereneced from
+other python script in different location of this folder so please be mindful of that information. 
+
+RULES!!! Academic integrity is the first priority; DO NOT CHANGE the coding part just annotated; After you rewrite the .ipynb files with annotation, always annotate timestamp of update. 
+
+Use the same rules as before, please update the .ipynb files in the tutorial folder with additional annotations that describe in more detail the arguments that users can
+implement and change when they run the code. Make sure that for every code block, the motivation is clear and the input argument logic and user capabilites are clear.
+Please reference the python scripts in the src/mingle folder where the package scripts are located for this information. DO NOT CHANGE any code, only annotations in the turorial .ipynb files.
+
+Here is the file path to a .pdf version of my scientific manuscript that goes along with the code listed in this folder ("C:\Users\k1van\Mingle\MINGLE_Manuscript.pdf"). Read all files in this folder and focus on the .ipynb files in the tutorial folder. Please update the .ipynb files
+in the tutorial folder with updated annotations that are ready to be published. Make sure you check the functions in the pp, tl, and pl folders to make sure all the code in the notebooks is
+annotated so that a users knows exactly how to use them and all the parameters they can change. Also, ensure that the biological motivation and results are also annotated in these .ipynb tutorial
+notebooks based on what is in the manuscript. DO NOT CHANGE the code, only update annotations. After you update the .ipynb files with updated annotations, add a timestamp of your update in the file. 
