@@ -17,24 +17,17 @@ Tissues are organized with interacting multicellular organizational units whose 
 
 Here we present **MINGL** (*Mixture-based Identification of Neighborhood Gradients with Likelihood estimates*), a probabilistic framework that converts existing neighborhood annotations into continuous measures of tissue architecture.  
 
-MINGL models each cell by multi-membership probabilities across hierarchical organizational units and uses these probabilities to:
+MINGL models each cell by multi-membership probabilities across hierarchical organizational units and uses these probabilities to identify enriched cells at interfaces between units, constructs interaction networks across hierarchical scales, quantifies compositional gradient transitions, measures context-specific composition heterogeneity, and provides a starting point for neighborhood resolution. Across multiple spatial-omic datasets spanning melanoma, healthy intestine, and Barrett’s Esophagus progression, MINGL detected innate immune-enriched interfaces at tumor and anatomical interfaces, plasma cell niches linking cellular neighborhoods, distinct regimes of sharp and gradual transitions between organizational states, and disease-associated neighborhood remodeling. By treating neighborhood assignment uncertainty as a biological signal rather than noise, MINGL unifies discrete and continuous representations of tissue organization and makes tissue architecture measurable, comparable, and scalable across biological scales and spatial-omics platforms.
 
-- Identify enriched cells at interfaces between units  
-- Construct interaction networks across hierarchical scales  
-- Quantify compositional gradient transitions  
-- Measure context-specific composition heterogeneity  
-- Provide a starting point for neighborhood resolution  
+---
 
-Across multiple spatial-omic datasets spanning melanoma, healthy intestine, and Barrett’s Esophagus progression, MINGL reveals:
+## MINGL Applications
 
-- Innate immune–enriched interfaces at tumor and anatomical boundaries  
-- Plasma cell niches linking cellular neighborhoods  
-- Distinct regimes of sharp vs. gradual transitions  
-- Disease-associated remodeling of tissue organization  
+![Mingl Applications](MINGL_Applications.png)
 
-By treating neighborhood assignment uncertainty as a biological signal rather than noise, MINGL unifies discrete and continuous representations of tissue organization and makes tissue architecture measurable, comparable, and scalable across biological scales and spatial-omics platforms.
+---
 
-## Getting started
+## Getting Started
 
 MINGL is a set of tools and plotting functions for identifying and quantifying borders between hierarchical units and gradients of changing cellular organization across these interfaces. MINGL is also a tool for investigating heterogeneity in hierarchical tissue organization across disease states, between patients, or across tissue samples from the same patient, and can identify changes in cellular organization even when anchor cell types remain unchanged.
 MINGL also includes a tool for suggesting a biologically-informed cluster number range as a starting point for hierarchical spatial organization analysis.
@@ -42,13 +35,6 @@ MINGL also includes a tool for suggesting a biologically-informed cluster number
 MINGL's main tool can be run on MacOS or WindowsOS using CPU, and is also equipped with a GPU accelerated version compatible with cupy and WindowsOS as of version 0.0.1.
 
 Please see instructions on installation and our recommended use below. Happy exploration of "life on the edge" in borders between spatial organization of our tissues!
-
-## MINGL Applications
-
-![Mingl Applications](MINGL_Applications.png)
-
-Please refer to the [documentation][],
-in particular, the [API documentation][].
 
 ## Installation
 
