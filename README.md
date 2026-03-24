@@ -1,12 +1,38 @@
-# MINGL
+## MINGL: Quantifies Borders, Gradients, and Heterogeneity in Multicellular Tissue Organization
 
-Mixture-based Identification of Neighborhood Gradients with Likelihood estimates.
+**Kyra Van Batavia¹, James Wright²˒³, Annette Chen¹, Yuexi Li¹, John W. Hickey¹\***
 
-[![Tests][badge-tests]][tests]
-[![Documentation][badge-docs]][documentation]
+¹ Department of Biomedical Engineering, Duke University, Durham, NC, USA  
+² Department of Computer Science, Duke University, Durham, NC, USA  
+³ Department of Mathematics, Duke University, Durham, NC, USA  
 
-[badge-tests]: https://img.shields.io/github/actions/workflow/status/jwrightd/MINGLE/test.yaml?branch=main
-[badge-docs]: https://img.shields.io/readthedocs/MINGLE
+\* **Corresponding author:** john.hickey@duke.edu  
+**Contributing authors:** kyra.vanbatavia@duke.edu; james.wright@duke.edu; annette.chen@duke.edu; yuexi.li@duke.edu  
+
+---
+
+## 📄 Abstract
+
+Tissues are organized with interacting multicellular organizational units whose interfaces and transitions shape function in health and disease. Current spatial-omics analyses typically assign cells to a single cellular neighborhood—ignoring natural gradients, heterogeneity, and borders.  
+
+Here we present **MINGL** (*Mixture-based Identification of Neighborhood Gradients with Likelihood estimates*), a probabilistic framework that converts existing neighborhood annotations into continuous measures of tissue architecture.  
+
+MINGL models each cell by multi-membership probabilities across hierarchical organizational units and uses these probabilities to:
+
+- Identify enriched cells at interfaces between units  
+- Construct interaction networks across hierarchical scales  
+- Quantify compositional gradient transitions  
+- Measure context-specific composition heterogeneity  
+- Provide a starting point for neighborhood resolution  
+
+Across multiple spatial-omic datasets spanning melanoma, healthy intestine, and Barrett’s Esophagus progression, MINGL reveals:
+
+- Innate immune–enriched interfaces at tumor and anatomical boundaries  
+- Plasma cell niches linking cellular neighborhoods  
+- Distinct regimes of sharp vs. gradual transitions  
+- Disease-associated remodeling of tissue organization  
+
+By treating neighborhood assignment uncertainty as a biological signal rather than noise, MINGL unifies discrete and continuous representations of tissue organization and makes tissue architecture measurable, comparable, and scalable across biological scales and spatial-omics platforms.
 
 ## Getting started
 
