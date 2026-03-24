@@ -19,7 +19,7 @@ Please see instructions on installation and our recommended use below. Happy exp
 
 ## MINGL Applications
 
-![Mingl output](docs/MINGL_Applications.png)
+![Mingl Applications](MINGL_Applications.png)
 
 Please refer to the [documentation][],
 in particular, the [API documentation][].
