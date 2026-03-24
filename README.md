@@ -58,13 +58,13 @@ pip install MINGLE
 pip install git+https://github.com/HickeyLab/Mingl.git@main
 ```
 
-## Release notes
+## Release Notes
 
 See the [changelog][].
 
 ## Contact
 
-For questions and help requests, you can reach out in the [scverse discourse][].
+For questions and help requests, you can reach out to the authors.
 If you found a bug, please use the [issue tracker][].
 
 ## Citation
