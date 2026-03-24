@@ -11,6 +11,8 @@
 
 ---
 
+![MINGL Logo](MINGL_Logo.png)
+
 ## Abstract
 
 Tissues are organized with interacting multicellular organizational units whose interfaces and transitions shape function in health and disease. Current spatial-omics analyses typically assign cells to a single cellular neighborhood—ignoring natural gradients, heterogeneity, and borders.  
