@@ -102,25 +102,25 @@ Mingl/
 │       ├── pp/                                # Preprocessing tools
 │       │   └── preprocessing.py
 │       ├── tl/                                # Core analysis tools
-│       │   ├── ccd.py
-│       │   ├── centroids.py
-│       │   ├── compute_proportions.py
-│       │   ├── crd.py
-│       │   ├── edges.py
-│       │   ├── gb.py
-│       │   ├── gmm.py
-│       │   ├── gmm_gpu.py
-│       │   ├── grad.py
-│       │   ├── gvs2.py
-│       │   ├── knn.py
-│       │   ├── knn2.py
-│       │   ├── n_neighbors.py
-│       │   ├── network_graphs.py
-│       │   ├── testgvs.py
-│       │   └── utils_adata.py
+│       │   ├── ccd.py                         # Compute condition or group specific delta values
+│       │   ├── centroids.py                   # Calculate centroids of lower level labels at your desired hierarchical organization level
+│       │   ├── compute_proportions.py         # Compute cell type proportions of different groups/conditions
+│       │   ├── crd.py                         # Compute tissue region specific delta values
+│       │   ├── edges.py                       # Code to find positive memberships based on thresholds and categorize border cells
+│       │   ├── gb.py                          # Calculate how organization proportions change as you move through a specific transition gradient
+│       │   ├── gmm.py                         # CPU comparison of all cells' features to centroids and calculation of MINGL probabilities of organization membership
+│       │   ├── gmm_gpu.py                     # GPU accelerated version of gmm.py, requires CuPy
+│       │   ├── grad.py                        # Calculate probability ratio scores, define bins, cluster to obtain transition gradient information
+│       │   ├── gvs2.py                        # Compute changes in cell type proportion between a specific group compared to global
+│       │   ├── knn.py                         # K-nearest neighbors function without maximum distance threshold
+│       │   ├── knn2.py                        # K-nearest neighbors function with maximum distance threshold
+│       │   ├── n_neighbors.py                 # Loop through numbers of clusters for neighborhood analysis, compute log-likelihoods and cluster assignment probabilities
+│       │   ├── network_graphs.py              # Compute organization interaction maps
+│       │   ├── testgvs.py                     # Test script to ensure gvs is working
+│       │   └── utils_adata.py                 # Tools for maneuvering and working with Anndata structure
 │       └── __init__.py
-├── tutorials/                       # Example notebooks
-│   ├── fig2_intestine_neighborhood.ipynb
+├── tutorials/                                 # Tutorial notebooks and code used to generate manuscript figures
+│   ├── fig2_intestine_neighborhood.ipynb     
 │   ├── fig2_intestine_tissueunit.ipynb
 │   ├── fig2_melanoma_neighborhood.ipynb
 │   ├── fig3_networks.ipynb
@@ -128,11 +128,11 @@ Mingl/
 │   ├── fig4_intestine_community.ipynb
 │   ├── fig5_esophagus.ipynb
 │   └── fig6_intestine_n_neighborhoods.ipynb
-├── tools/                           # Utility scripts
+├── tools/                                     # Utility scripts
 │   ├── enrich_tutorial_annotations.py
 │   └── ...
-├── tests/                           # Unit tests
-├── docs/                            # Images and docs
+├── tests/                                     # Unit tests
+├── docs/                                      # Images and docs
 ├── README.md
 └── pyproject.toml
 
