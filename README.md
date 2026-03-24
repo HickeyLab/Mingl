@@ -17,6 +17,10 @@ MINGL's main tool can be run on MacOS or WindowsOS using CPU, and is also equipp
 
 Please see instructions on installation and our recommended use below. Happy exploration of "life on the edge" in borders between spatial organization of our tissues!
 
+## MINGL Applications
+
+![Mingl output](docs/MINGL_Applications.png)
+
 Please refer to the [documentation][],
 in particular, the [API documentation][].
 
