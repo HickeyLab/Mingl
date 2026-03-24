@@ -85,23 +85,23 @@ If you found a bug, please use the [issue tracker][].
 Mingl/
 ├── src/
 │   └── mingl/
-│       ├── pl/                      # Plotting functions
-│       │   ├── cell_composition.py
-│       │   ├── cnd.py
-│       │   ├── dpp.py
-│       │   ├── dv.py
-│       │   ├── edges_pp.py
-│       │   ├── enrichment.py
-│       │   ├── gmm_plots.py
-│       │   ├── gvs.py
-│       │   ├── plt_dv.py
-│       │   ├── rnd.py
-│       │   ├── spatial_location_reg.py
-│       │   ├── spatial_probability_map.py
-│       │   └── violin.py
-│       ├── pp/                      # Preprocessing tools
+│       ├── pl/                                # Plotting functions
+│       │   ├── cell_composition.py            # Cell type distributions throughout transition gradient
+│       │   ├── cnd.py                         # Compute delta values and plot spatial heterogeneity of groups
+│       │   ├── dpp.py                         # Summed and average delta values per patient
+│       │   ├── dv.py                          # Delta volcano plots of cell type enrichment/depletion in specific organization and groups
+│       │   ├── edges_pp.py                    # Positive neighborhood probability and count above threshold distributions
+│       │   ├── enrichment.py                  # Enrichment of cell types at transition border between two organizational units
+│       │   ├── gmm_plots.py                   # Catplot of region colored by assigned organizational classification
+│       │   ├── gvs.py                         # Cell type proportion heterogeneity across groups compared to global
+│       │   ├── plt_dv.py                      # Log2 fold abundance of cell types in one group compared to global
+│       │   ├── rnd.py                         # Region-specific delta values of spatial organization heterogeneity
+│       │   ├── spatial_location_reg.py        # Show border cells in relation to singly positive organizational unit cells
+│       │   ├── spatial_probability_map.py     # Catplot of region colored by MINGL probability 
+│       │   └── violin.py                      # Transition gradient clusters' probability ratio score distributions
+│       ├── pp/                                # Preprocessing tools
 │       │   └── preprocessing.py
-│       ├── tl/                      # Core analysis tools
+│       ├── tl/                                # Core analysis tools
 │       │   ├── ccd.py
 │       │   ├── centroids.py
 │       │   ├── compute_proportions.py
