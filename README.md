@@ -1,6 +1,6 @@
 # MINGL
 
-Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification.
+Mixture-based Identification of Neighborhood Gradients with Likelihood estimates.
 
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
