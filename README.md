@@ -24,7 +24,7 @@ in particular, the [API documentation][].
 
 Python 3.11 or newer is required for installation on your system.
 
-We recommend that you install MINGLE into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below.
+We recommend that you install MINGL into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below.
 
 There are two options to install MINGL:
 
@@ -39,7 +39,7 @@ pip install MINGLE
 1. Install the latest development version:
 
 ```bash
-pip install git+https://github.com/HickeyLab/Mingle.git@main
+pip install git+https://github.com/HickeyLab/Mingl.git@main
 ```
 
 ## Release notes
