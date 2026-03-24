@@ -79,3 +79,59 @@ If you found a bug, please use the [issue tracker][].
 [changelog]: https://MINGLE.readthedocs.io/en/latest/changelog.html
 [api documentation]: https://MINGLE.readthedocs.io/en/latest/api.html
 [pypi]: https://pypi.org/project/MINGLE
+
+### Repository Structure
+Mingl/
+├── src/
+│   └── mingl/
+│       ├── pl/                      # Plotting functions
+│       │   ├── cell_composition.py
+│       │   ├── cnd.py
+│       │   ├── dpp.py
+│       │   ├── dv.py
+│       │   ├── edges_pp.py
+│       │   ├── enrichment.py
+│       │   ├── gmm_plots.py
+│       │   ├── gvs.py
+│       │   ├── plt_dv.py
+│       │   ├── rnd.py
+│       │   ├── spatial_location_reg.py
+│       │   ├── spatial_probability_map.py
+│       │   └── violin.py
+│       ├── pp/                      # Preprocessing tools
+│       │   └── preprocessing.py
+│       ├── tl/                      # Core analysis tools
+│       │   ├── ccd.py
+│       │   ├── centroids.py
+│       │   ├── compute_proportions.py
+│       │   ├── crd.py
+│       │   ├── edges.py
+│       │   ├── gb.py
+│       │   ├── gmm.py
+│       │   ├── gmm_gpu.py
+│       │   ├── grad.py
+│       │   ├── gvs2.py
+│       │   ├── knn.py
+│       │   ├── knn2.py
+│       │   ├── n_neighbors.py
+│       │   ├── network_graphs.py
+│       │   ├── testgvs.py
+│       │   └── utils_adata.py
+│       └── __init__.py
+├── tutorials/                       # Example notebooks
+│   ├── fig2_intestine_neighborhood.ipynb
+│   ├── fig2_intestine_tissueunit.ipynb
+│   ├── fig2_melanoma_neighborhood.ipynb
+│   ├── fig3_networks.ipynb
+│   ├── fig4_intestine_neighborhood.ipynb
+│   ├── fig4_intestine_community.ipynb
+│   ├── fig5_esophagus.ipynb
+│   └── fig6_intestine_n_neighborhoods.ipynb
+├── tools/                           # Utility scripts
+│   ├── enrich_tutorial_annotations.py
+│   └── ...
+├── tests/                           # Unit tests
+├── docs/                            # Images and docs
+├── README.md
+└── pyproject.toml
+
