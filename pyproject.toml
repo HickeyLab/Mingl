@@ -3,9 +3,9 @@ build-backend = "hatchling.build"
 requires = [ "hatchling" ]
 
 [project]
-name = "MINGLE"
+name = "MINGL"
 version = "0.0.1"
-description = "Multicellular Neighborhood Analysis using Gaussian Mixture Models to create a probabilistic distribution for classification."
+description = "Mixture-based Identification of Neighborhood Gradients with Likelihood estimates."
 readme = "README.md"
 license = { file = "LICENSE" }
 maintainers = [
@@ -37,9 +37,9 @@ dependencies = [
   "session-info2",
 ]
 # https://docs.pypi.org/project_metadata/#project-urls
-urls.Documentation = "https://MINGLE.readthedocs.io/"
-urls.Homepage = "https://github.com/HickeyLab/Mingle"
-urls.Source = "https://github.com/HickeyLab/Mingle"
+urls.Documentation = "https://MINGL.readthedocs.io/"
+urls.Homepage = "https://github.com/HickeyLab/Mingl"
+urls.Source = "https://github.com/HickeyLab/Mingl"
 
 [dependency-groups]
 dev = [
@@ -82,7 +82,7 @@ envs.hatch-test.overrides.matrix.deps.env-vars = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/MINGLE"]
+packages = ["src/MINGL"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -142,7 +142,7 @@ run.omit = [
   "**/test_*.py",
 ]
 run.patch = [ "subprocess" ]
-run.source = [ "MINGLE" ]
+run.source = [ "MINGL" ]
 
 [tool.cruft]
 skip = [
