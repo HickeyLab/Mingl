@@ -81,6 +81,7 @@ If you found a bug, please use the [issue tracker][].
 [pypi]: https://pypi.org/project/MINGLE
 
 ### Repository Structure
+```text
 Mingl/
 ├── src/
 │   └── mingl/
