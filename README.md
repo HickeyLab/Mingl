@@ -11,7 +11,7 @@
 
 ---
 
-![MINGL Logo](MINGL_Logo.png)
+![MINGL Logo](MINGL_Github Logo.png)
 
 ## Abstract
 
