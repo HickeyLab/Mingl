@@ -77,6 +77,7 @@ def plot_log2fc_vs_mean_abundance(
     else:
         raise ValueError("Provide subset_region or subset_patient or subset_context.")
 
+    context_mode = subset_context is not None
     denom_global = max(len(df_neigh), 1)
     denom_subset = max(len(subset_df), 1)
 
@@ -118,6 +119,9 @@ def plot_log2fc_vs_mean_abundance(
         )
 
     plot_df = pd.DataFrame(rows).set_index("ct")
+    if context_mode:
+        plot_df["context_pct"] = plot_df["subset_pct"]
+        plot_df["context_count"] = plot_df["subset_count"]
 
     # ---- colors
     if color_by_bucket:
@@ -164,9 +168,14 @@ def plot_log2fc_vs_mean_abundance(
     ax.axhline(abundance_threshold_pct, color="lightgray", linestyle=":", linewidth=1)
 
     # labels
-    ax.set_xlabel("log₂(subset % / global %)", fontsize=fontsize)
-    ax.set_ylabel("Mean CN Abundance (%)", fontsize=fontsize)
-    ax.set_title(f"{neighborhood} {subset_label}", fontsize=fontsize)
+    if context_mode:
+        ax.set_xlabel("log2(Cell Type % of Group / Global)", fontsize=fontsize)
+        ax.set_ylabel("Mean % of CN", fontsize=fontsize)
+        ax.set_title(f"{neighborhood}: {subset_label}", fontsize=fontsize)
+    else:
+        ax.set_xlabel("log₂(subset % / global %)", fontsize=fontsize)
+        ax.set_ylabel("Mean CN Abundance (%)", fontsize=fontsize)
+        ax.set_title(f"{neighborhood} {subset_label}", fontsize=fontsize)
 
     # ---- annotate sector points (top-left and top-right)
     if annotate_sectors:
