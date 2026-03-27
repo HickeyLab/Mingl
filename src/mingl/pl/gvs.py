@@ -71,8 +71,10 @@ def plot_global_vs_subset_horizontal_buckets(
     else:
         raise ValueError("Provide subset_region or subset_patient or subset_context (region takes precedence).")
 
+    context_mode = subset_context is not None
+
     # optional context label display only
-    if show_context and has_context and not subset_df.empty:
+    if show_context and has_context and not subset_df.empty and not context_mode:
         uniq_ctx = subset_df[context_key].dropna().astype(str).unique()
         ctx_label = uniq_ctx[0] if len(uniq_ctx) == 1 else "Mixed"
         subset_label = f"{subset_label}\n({ctx_label})"
@@ -134,8 +136,13 @@ def plot_global_vs_subset_horizontal_buckets(
         )
 
         if len(ct_union) == 0:
+            empty_msg = (
+                f"No cell types > {min_count} cells"
+                if context_mode
+                else f"No cell types > {min_count} in neighborhood or subset"
+            )
             ax.text(
-                0.5, 0.5, f"No cell types > {min_count} in neighborhood or subset",
+                0.5, 0.5, empty_msg,
                 ha="center", va="center", fontsize=14, style="italic", transform=ax.transAxes
             )
             ax.grid(False)
@@ -163,15 +170,27 @@ def plot_global_vs_subset_horizontal_buckets(
 
         # dynamic x-axis scaling chosen from {25, 50, 100}
         raw_max = float(plot_df.sum(axis=1).max())
-        if raw_max <= 25:
-            nice_max = 25
-            tick_vals = np.array([0, 8, 17, 25])
-        elif raw_max <= 50:
-            nice_max = 50
-            tick_vals = np.array([0, 17, 33, 50])
+        if context_mode:
+            if raw_max <= 25:
+                nice_max = 25
+            elif raw_max <= 50:
+                nice_max = 50
+            else:
+                nice_max = 100
+
+            n_ticks = 5 if nice_max % 4 == 0 else 4
+            tick_vals = np.linspace(0, nice_max, n_ticks)
+            tick_vals = np.unique(np.round(tick_vals).astype(int))
         else:
-            nice_max = 100
-            tick_vals = np.array([0, 25, 50, 75, 100])
+            if raw_max <= 25:
+                nice_max = 25
+                tick_vals = np.array([0, 8, 17, 25])
+            elif raw_max <= 50:
+                nice_max = 50
+                tick_vals = np.array([0, 17, 33, 50])
+            else:
+                nice_max = 100
+                tick_vals = np.array([0, 25, 50, 75, 100])
 
         padding = 0.02 * nice_max
         ax.set_xlim(0, nice_max + padding)
