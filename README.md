@@ -9,6 +9,8 @@
 \* **Corresponding author:** john.hickey@duke.edu  
 **Contributing authors:** kyra.vanbatavia@duke.edu; james.wright@duke.edu; annette.chen@duke.edu; yuexi.li@duke.edu  
 
+**Preprint:** https://www.biorxiv.org/content/10.64898/2026.03.24.713296v1
+
 ---
 
 ![MINGL Logo](MINGL_GitHub_Logo.png)
