@@ -114,13 +114,11 @@ Mingl/
 │       │   ├── gb.py                          # Calculate how organization proportions change as you move through a specific transition gradient
 │       │   ├── gmm.py                         # CPU comparison of all cells' features to centroids and calculation of MINGL probabilities of organization membership
 │       │   ├── gmm_gpu.py                     # GPU accelerated version of gmm.py, requires CuPy
-│       │   ├── grad.py                        # Calculate probability ratio scores, define bins, cluster to obtain transition gradient information
-│       │   ├── gvs2.py                        # Compute changes in cell type proportion between a specific group compared to global
+│       │   ├── grad.py                        # Calculate probability ratio scores, define between a specific group compared to global
 │       │   ├── knn.py                         # K-nearest neighbors function without maximum distance threshold
 │       │   ├── knn2.py                        # K-nearest neighbors function with maximum distance threshold
 │       │   ├── n_neighbors.py                 # Loop through numbers of clusters for neighborhood analysis, compute log-likelihoods and cluster assignment probabilities
 │       │   ├── network_graphs.py              # Compute organization interaction maps
-│       │   ├── testgvs.py                     # Test script to ensure gvs is working
 │       │   └── utils_adata.py                 # Tools for maneuvering and working with Anndata structure
 │       └── __init__.py
 ├── tutorials/                                 # Tutorial notebooks and code used to generate manuscript figures
