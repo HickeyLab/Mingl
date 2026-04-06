@@ -4,7 +4,6 @@ import time
 import numpy as np
 import pandas as pd
 import anndata as ad
-from MINGL import pp
 
 def ccd(
     cells_path: str,
@@ -264,4 +263,3 @@ def ccd(
     adata.uns["min_count"] = int(min_count)
 
     return adata, combined_melted_filtered, combo_counts
-

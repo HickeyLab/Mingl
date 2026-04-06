@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from anndata import AnnData
-import MINGL as mg
 
 
 def spatial_loc_region(
@@ -83,5 +82,4 @@ def spatial_loc_region(
     masks = {"other": mask_other, "only_1": mask_only_1, "only_2": mask_only_2, "both": mask_both}
     plt.show()
     return fig, ax, masks
-
 

@@ -1,7 +1,7 @@
 # API
 
 ```{note}
-This repository currently mixes `mingl`, `MINGL`, and `MINGLE` across the source tree, packaging metadata, tests, and tutorial notebooks. The source code audited for this page lives under `src/mingl`, while notebooks usually alias the package as `mg` and sometimes import advanced helpers from submodules such as `MINGL.tl.gmm_gpu`. This page documents the actual API surface discovered in the repository and uses `mg` only as a generic package alias.
+The published distribution is `mingle-hl`, while the canonical Python import is `mingl`. This repository historically mixed `mingl`, `MINGL`, and `MINGLE`; the source code documented here lives under `src/mingl`, and a `MINGLE` compatibility package is still shipped for older environments.
 ```
 
 ## How The API Is Organized

@@ -1,7 +1,8 @@
-import MINGL as mg
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+from ..tl.knn2 import KNN2
 
 
 def spatial_probability_mapping(
@@ -30,7 +31,7 @@ def spatial_probability_mapping(
     keep_cols = [X, Y, reg, cluster_col, tiss_unit, neigh, cell_type]
     ks = [10,100,300]
     # IMPORTANT CHANGE: KNN takes adata (per your note)
-    windows = mg.tl.KNN2(adata, cluster_col=cluster_col, keep_obs_cols=keep_cols, ks = ks)
+    windows = KNN2(adata, cluster_col=cluster_col, keep_obs_cols=keep_cols, ks = ks)
     k = k
     windows2 = windows[k]
 
@@ -157,4 +158,3 @@ def spatial_probability_mapping(
     plt.show()
 
     return probabilities_df, visualization_df, filtered_region_df
-

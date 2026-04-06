@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 
 try:
     import scanpy as sc
-except ImportError:
+except Exception:
+    # scanpy is optional here; if it is unavailable or broken, we still want
+    # the plotting helpers to fall back to a local figures/ directory.
     sc = None
 
 

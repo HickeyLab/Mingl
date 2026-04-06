@@ -48,15 +48,19 @@ We recommend that you install MINGL into a new, fresh environment to avoid any d
 
 There are two options to install MINGL:
 
-<!--
-1) Install the latest release of `MINGL` from [PyPI][]:
+1. Install the latest release from [PyPI][]:
 
 ```bash
-pip install MINGLE
+pip install mingle-hl
 ```
--->
 
-1. Install the latest development version:
+Import the library in Python with:
+
+```python
+import mingl as mg
+```
+
+2. Install the latest development version:
 
 ```bash
 pip install git+https://github.com/HickeyLab/Mingl.git@main
@@ -77,12 +81,12 @@ If you found a bug, please use the [issue tracker][].
 
 [uv]: https://github.com/astral-sh/uv
 [scverse discourse]: https://discourse.scverse.org/
-[issue tracker]: https://github.com/jwrightd/MINGLE/issues
-[tests]: https://github.com/jwrightd/MINGLE/actions/workflows/test.yaml
-[documentation]: https://MINGLE.readthedocs.io
-[changelog]: https://MINGLE.readthedocs.io/en/latest/changelog.html
-[api documentation]: https://MINGLE.readthedocs.io/en/latest/api.html
-[pypi]: https://pypi.org/project/MINGLE
+[issue tracker]: https://github.com/HickeyLab/Mingl/issues
+[tests]: https://github.com/HickeyLab/Mingl/actions/workflows/test.yaml
+[documentation]: https://mingl.readthedocs.io
+[changelog]: https://mingl.readthedocs.io/en/latest/changelog.html
+[api documentation]: https://mingl.readthedocs.io/en/latest/api.html
+[pypi]: https://pypi.org/project/mingle-hl
 
 ### Repository Structure
 ```text
@@ -137,4 +141,3 @@ Mingl/
 ├── docs/                                      # Images and docs
 ├── README.md
 └── pyproject.toml
-

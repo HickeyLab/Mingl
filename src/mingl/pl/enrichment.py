@@ -25,8 +25,8 @@ try:
 except Exception:
     tqdm = None  # type: ignore
 
-from MINGL.tl.utils_adata import build_df_probs_from_adata
-from MINGL.tl.compute_proportions import compute_grouped_proportions
+from ..tl.utils_adata import build_df_probs_from_adata
+from ..tl.compute_proportions import compute_grouped_proportions
 
 
 # ---------------- DEFAULT CONFIG ----------------

@@ -3,7 +3,7 @@ build-backend = "hatchling.build"
 requires = [ "hatchling" ]
 
 [project]
-name = "MINGL"
+name = "mingle-hl"
 version = "0.0.1"
 description = "Mixture-based Identification of Neighborhood Gradients with Likelihood estimates."
 readme = "README.md"
@@ -31,18 +31,23 @@ dependencies = [
   "anndata>=0.10,<0.13",
   "numpy>=1.26,<3",
   "pandas>=2.2,<3.0",
+  "scipy>=1.12,<2",
   "scikit-learn>=1.4,<2",
   "matplotlib>=3.8,<4",
   "seaborn>=0.13,<0.14",
+  "networkx>=3.2,<4",
+  "tqdm>=4.66,<5",
   "session-info2",
 ]
 # https://docs.pypi.org/project_metadata/#project-urls
-urls.Documentation = "https://MINGL.readthedocs.io/"
+urls.Documentation = "https://mingl.readthedocs.io/"
 urls.Homepage = "https://github.com/HickeyLab/Mingl"
+urls.Issues = "https://github.com/HickeyLab/Mingl/issues"
 urls.Source = "https://github.com/HickeyLab/Mingl"
 
 [dependency-groups]
 dev = [
+  "build>=1.2",
   "pre-commit",
   "twine>=4.0.2",
 ]
@@ -82,7 +87,7 @@ envs.hatch-test.overrides.matrix.deps.env-vars = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/MINGL"]
+packages = ["src/mingl", "src/MINGLE"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -142,7 +147,7 @@ run.omit = [
   "**/test_*.py",
 ]
 run.patch = [ "subprocess" ]
-run.source = [ "MINGL" ]
+run.source = [ "mingl", "MINGLE" ]
 
 [tool.cruft]
 skip = [

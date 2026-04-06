@@ -1,10 +1,16 @@
+import importlib
+
 import pytest
 
-import MINGLE
+import mingl
 
 
 def test_package_has_version():
-    assert MINGLE.__version__ is not None
+    assert mingl.__version__ is not None
+
+
+def test_legacy_mingle_alias_imports():
+    assert importlib.import_module("MINGLE").__version__ == mingl.__version__
 
 
 @pytest.mark.skip(reason="This decorator should be removed when test passes.")
@@ -32,7 +38,7 @@ def test_elaborate_example_adata_only_simple(
     expected_len,
     expected_substring,
 ):
-    result = MINGLE.pp.elaborate_example(
+    result = mingl.pp.elaborate_example(
         items=[adata], transform=transform, layer_key=layer_key, max_items=max_items
     )
 
