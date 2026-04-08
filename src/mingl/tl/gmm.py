@@ -1,142 +1,168 @@
+import math
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, Sequence
+
+import anndata as ad
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
-from multiprocessing import Pool, cpu_count
-from tqdm import tqdm
-from typing import Optional, Union, Dict, Sequence
-import anndata as ad
-import math
+
 from .knn2 import KNN2
-import multiprocessing
-#multiprocessing.set_start_method('spawn')
 
-# Helper function to calculate probabilities for each cell (moved outside for parallelization)
-def calculate_probabilities_for_cell(args):
-    # Unpack the arguments
-    cell_index, windows2, centroid_rows, cell_type_features, neighborhood_col = args
-    neighborhood_probs = {}
 
-    # Iterate through each centroid (neighborhood)
-    for _, centroid_row in centroid_rows:
-        neighborhood_name = _#centroid_row[neighborhood_col]
-        total_prob = 1
+def _compute_probability_batch(
+    window_batch: np.ndarray,
+    centroid_means: np.ndarray,
+    centroid_stds: np.ndarray,
+) -> np.ndarray:
+    """Score one batch of cells against all centroid profiles."""
+    batch_size = window_batch.shape[0]
+    n_centroids, n_features = centroid_means.shape
+    probabilities = np.ones((batch_size, n_centroids), dtype=np.float64)
 
-        # For each cell type, calculate the probability
-        for cell_type in cell_type_features:
-            mean_col = f'{cell_type}_mean'
-            std_col = f'{cell_type}_std'
+    for feature_index in range(n_features):
+        cell_values = window_batch[:, feature_index][:, np.newaxis]
+        means = centroid_means[:, feature_index][np.newaxis, :]
+        stds = centroid_stds[:, feature_index][np.newaxis, :]
 
-            if mean_col in centroid_row and std_col in centroid_row:
-                mean = centroid_row[mean_col] 
-                std = centroid_row[std_col]
-                #mean = math.trunc(mean * 1_000_000) / 1_000_000
-                #std = math.trunc(std * 1_000_000) / 1_000_000
-                # Get the value of the current cell for this cell type
-                cell_value = windows2.loc[cell_index, cell_type] if cell_type in windows2.columns else np.nan
+        zero_std_mask = stds == 0
+        safe_stds = np.where(zero_std_mask, 1.0, stds)
 
-                # Check if std is zero, calculate probability
-                if std == 0:
-                    cell_prob = 1 if cell_value == mean else 0
-                else:
-                    cell_prob = norm.pdf(cell_value, loc=mean, scale=std)
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+            pdf = (
+                1.0
+                / (safe_stds * math.sqrt(2 * math.pi))
+                * np.exp(-0.5 * ((cell_values - means) / safe_stds) ** 2)
+            )
 
-                total_prob *= cell_prob  # Multiply for each cell type
+        exact_match_mask = cell_values == means
+        pdf = np.where(zero_std_mask & exact_match_mask, 1.0, pdf)
+        pdf = np.where(zero_std_mask & ~exact_match_mask, 0.0, pdf)
 
-        # Store the neighborhood probability for this cell
-        neighborhood_probs[neighborhood_name] = total_prob
+        probabilities *= pdf
 
-    # Normalize the probabilities to sum to 1
-    total_prob_sum = sum(neighborhood_probs.values())
-    for neighborhood in neighborhood_probs:
-        neighborhood_probs[neighborhood] /= total_prob_sum
+    probability_sums = probabilities.sum(axis=1, keepdims=True)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        probabilities = np.divide(
+            probabilities,
+            probability_sums,
+            out=np.zeros_like(probabilities),
+            where=probability_sums != 0,
+        )
 
-    return neighborhood_probs
+    return probabilities
+
+
+def _default_batch_size(n_cells: int, n_centroids: int, n_features: int) -> int:
+    """Keep each temporary 3D block reasonably small for typical laptops/workstations."""
+    target_elements = 4_000_000
+    elements_per_row = max(1, n_centroids * n_features)
+    batch_size = target_elements // elements_per_row
+    return max(256, min(n_cells, min(8_192, batch_size or 256)))
+
 
 def cpu_gmm_probability(
     CELLS_ADATA: ad.AnnData,
     CENTROIDS_ADATA: ad.AnnData,
     *,
-    cluster_col: str = "cell_type",  # Default cluster column in obs
-    neighborhood_col: str = "neighborhood",  # Default neighborhood column in obs
+    cluster_col: str = "cell_type",
+    neighborhood_col: str = "neighborhood",
     region_key: str = "unique_region",
-    ks: Sequence[int] = (10, 20, 100, 300),  # List of k values for neighbors
+    ks: Sequence[int] = (10, 20, 100, 300),
     k: int = 10,
-    threshold: float = 0.25,  # Probability threshold for counting
-    num_processes: Optional[int] = None,  # Optional: number of processes for parallelism (defaults to max CPUs)
+    threshold: float = 0.25,
+    num_processes: Optional[int] = None,
     prob_key: str = "neighborhood_probabilities",
     prob_variable_key: str = "neighborhood_probability_neighborhoods",
 ) -> ad.AnnData:
     """
-    Calculate GMM probabilities for each cell's assigned neighborhood and return the AnnData object with probabilities stored in `obsm`.
+    Calculate per-cell neighborhood membership probabilities on CPU.
 
-    Parameters
-    ----------
-    CELLS_ADATA
-        AnnData object containing cell-level data (with cluster labels and coordinates).
-    CENTROIDS_ADATA
-        AnnData object containing centroid data with neighborhood means and standard deviations for each cell type.
-    cluster_col
-        Column in `CELLS_ADATA.obs` representing the cluster or cell type (default is 'cell_type').
-    neighborhood_col
-        Column in `CELLS_ADATA.obs` representing the neighborhood assignment (default is 'neighborhood').
-    ks
-        Sequence of values for k (the number of neighbors) to compute neighborhood summaries.
-    threshold
-        Threshold probability value to count neighborhoods (default is 0.25).
-    num_processes
-        Number of parallel processes to use for computation (default is None, which uses all available CPUs).
-
-    Returns
-    -------
-    CELLS_ADATA
-        AnnData object with computed neighborhood probabilities stored in `obsm["neighborhood_probabilities"]`.
+    The public API is unchanged, but the implementation now uses batched NumPy
+    evaluation instead of shipping the full window table to a separate process
+    for every cell. This keeps the default path safe on Windows while still
+    allowing optional parallel workers for users who want them.
     """
+    del threshold  # retained for API compatibility
 
-    # Ensure neighborhood columns exist in obs
+    if num_processes is not None and num_processes < 1:
+        raise ValueError("num_processes must be at least 1 when provided.")
+
     if neighborhood_col not in CELLS_ADATA.obs or cluster_col not in CELLS_ADATA.obs:
         raise KeyError(f"One or more required columns ({neighborhood_col}, {cluster_col}) are missing in obs.")
 
-    # Step 1: Get KNN neighborhood windows
     windows = KNN2(CELLS_ADATA, cluster_col=cluster_col, region_key=region_key, ks=ks)
-    windows2 = windows[k]
-    windows2[cluster_col] = CELLS_ADATA.obs[cluster_col].values
+    if k not in windows:
+        raise ValueError(f"k={k} not in available ks from KNN2: {list(windows.keys())}")
 
-    # Step 2: List of neighborhoods and cell types to loop through
-    #neighborhoods_to_loop = CELLS_ADATA.obs[neighborhood_col].unique().tolist()
-    cell_type_features = CELLS_ADATA.obs[cluster_col].unique()
+    windows_k = windows[k].copy()
+    windows_k[cluster_col] = CELLS_ADATA.obs[cluster_col].values
 
-    # Extract centroid data as a list of rows (to pass to the multiprocessing pool)
-    centroid_rows = CENTROIDS_ADATA.to_df().iterrows() #HERE
-    centroid_rows = [(idx, row.to_dict()) for idx, row in centroid_rows]
+    cell_type_features = list(pd.Index(CELLS_ADATA.obs[cluster_col]).unique())
+    centroid_df = CENTROIDS_ADATA.to_df()
 
-    # Function to parallelize calculations across all cells
-    def parallelize_probability_calculations(windows2, centroid_rows, cell_type_features, neighborhood_col, num_processes):
-        if num_processes is None:
-            num_processes = cpu_count()
+    mean_cols = [f"{cell_type}_mean" for cell_type in cell_type_features]
+    std_cols = [f"{cell_type}_std" for cell_type in cell_type_features]
 
-        print(f"Using {num_processes} processes.")
+    missing_centroid_cols = [col for col in mean_cols + std_cols if col not in centroid_df.columns]
+    if missing_centroid_cols:
+        preview = ", ".join(missing_centroid_cols[:10])
+        raise ValueError(f"Missing centroid feature columns: {preview}")
 
-        task_args = [
-            (cell_index, windows2, centroid_rows, cell_type_features, neighborhood_col)
-            for cell_index in windows2.index
-        ]
+    missing_window_cols = [cell_type for cell_type in cell_type_features if cell_type not in windows_k.columns]
+    if missing_window_cols:
+        preview = ", ".join(map(str, missing_window_cols[:10]))
+        raise ValueError(f"Missing KNN window columns for cell types: {preview}")
 
-        with Pool(num_processes) as pool:
-            results = pool.map(calculate_probabilities_for_cell, task_args)
+    window_values = np.ascontiguousarray(
+        windows_k.loc[:, cell_type_features].to_numpy(dtype=np.float64, copy=False)
+    )
+    centroid_means = np.ascontiguousarray(
+        centroid_df.loc[:, mean_cols].to_numpy(dtype=np.float64, copy=False)
+    )
+    centroid_stds = np.ascontiguousarray(
+        centroid_df.loc[:, std_cols].to_numpy(dtype=np.float64, copy=False)
+    )
+    neighborhood_names = centroid_df.index.tolist()
 
-        return results
+    n_cells = window_values.shape[0]
+    if n_cells == 0:
+        probabilities = np.empty((0, len(neighborhood_names)), dtype=np.float64)
+    else:
+        batch_size = _default_batch_size(
+            n_cells=n_cells,
+            n_centroids=centroid_means.shape[0],
+            n_features=centroid_means.shape[1],
+        )
+        batches = [(start, min(start + batch_size, n_cells)) for start in range(0, n_cells, batch_size)]
 
-    #print(windows2)
+        if num_processes is None or num_processes == 1 or len(batches) == 1:
+            outputs = [
+                _compute_probability_batch(window_values[start:stop], centroid_means, centroid_stds)
+                for start, stop in batches
+            ]
+        else:
+            max_workers = min(num_processes, len(batches))
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = [
+                    executor.submit(
+                        _compute_probability_batch,
+                        window_values[start:stop],
+                        centroid_means,
+                        centroid_stds,
+                    )
+                    for start, stop in batches
+                ]
+                outputs = [future.result() for future in futures]
 
-    # Parallelize the calculations
-    probabilities_list = parallelize_probability_calculations(windows2, centroid_rows, cell_type_features, neighborhood_col, num_processes)
+        probabilities = np.vstack(outputs)
 
-    # Convert the results into a DataFrame
-    probabilities_df = pd.DataFrame(probabilities_list, index=windows2.index)
+    probabilities_df = pd.DataFrame(
+        probabilities,
+        index=windows_k.index,
+        columns=neighborhood_names,
+    )
 
-    # Step 3: Attach probabilities to AnnData object (store in obsm)
     CELLS_ADATA.obsm[prob_key] = probabilities_df.values
-    CELLS_ADATA.uns[prob_variable_key] = list(probabilities_df.columns)
+    CELLS_ADATA.uns[prob_variable_key] = neighborhood_names
 
-    # Return the updated AnnData object
     return CELLS_ADATA

@@ -114,7 +114,8 @@ Score each cell against every centroid profile using a Gaussian likelihood model
 - Requires `CELLS_ADATA.obs[cluster_col]` and `CELLS_ADATA.obs[neighborhood_col]`.
 - Recomputes local windows with `KNN2`; the chosen `k` must be included in `ks`.
 - Uses the centroid `AnnData` returned by `centroid_Calculation`.
-- Runs on CPU and can parallelize across cells with `num_processes`.
+- Runs on CPU with batched NumPy evaluation by default.
+- If `num_processes` is provided and greater than 1, batches are split across shared-memory worker threads to avoid Windows multiprocessing serialization overhead.
 - Returns the same `AnnData` object after mutating it in place.
 
 Writes:

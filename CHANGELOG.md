@@ -13,3 +13,7 @@ and this project adheres to [Semantic Versioning][].
 ### Added
 
 - Basic tool, preprocessing and plotting functions
+
+### Fixed
+
+- Reworked `mg.tl.cpu_gmm_probability` to score cells in batched NumPy blocks instead of per-cell multiprocessing tasks, which reduces Windows stalls caused by repeated process spawning and object serialization.
