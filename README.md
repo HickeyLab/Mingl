@@ -65,6 +65,7 @@ import mingl as mg
 ```bash
 pip install git+https://github.com/HickeyLab/Mingl.git@main
 ```
+Dependencies required are as follows: "anndata>=0.10,<0.13", "numpy>=1.26,<3", "pandas>=2.2,<3.0", "scipy>=1.12,<2", "scikit-learn>=1.4,<2", "matplotlib>=3.8,<4", "seaborn>=0.13,<0.14", "networkx>=3.2,<4", "tqdm>=4.66,<5", "session-info2"
 
 ## Release Notes
 
