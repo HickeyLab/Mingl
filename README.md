@@ -44,7 +44,7 @@ Please see instructions on installation and our recommended use below. Happy exp
 
 Python 3.11 or newer is required for installation on your system.
 
-We recommend that you install MINGL into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below.
+We recommend that you install MINGL into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below. Installation time on MacOS and WindowsOS takes approximately less than 5 minutes.
 
 There are two options to install MINGL:
 
