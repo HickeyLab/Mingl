@@ -29,11 +29,11 @@ def spatial_probability_mapping(
     cells = df
     
     keep_cols = [X, Y, reg, cluster_col, tiss_unit, neigh, cell_type]
-    ks = [10,100,300]
+    ks = sorted(set([10,100,300,k]))
     # IMPORTANT CHANGE: KNN takes adata (per your note)
-    windows = KNN2(adata, cluster_col=cluster_col, keep_obs_cols=keep_cols, ks = ks)
+    windows = KNN2(adata, x_key=X, y_key=Y, region_key=reg, cluster_col=cluster_col, keep_obs_cols=keep_cols, ks=ks,)
     k = k
-    windows2 = windows[k]
+    windows2 = windows[k].copy()
 
     # Add cell type column to output windows dataframe
     # (Preserves your exact logic: windows2 gets Community from cells)
@@ -49,7 +49,7 @@ def spatial_probability_mapping(
     num_batches = (num_cells + batch_size - 1) // batch_size  # ceiling division
 
     # Extract neighborhood names and centroids
-    neighborhood_names = df_centroids["Tissue Unit"].values
+    neighborhood_names = df_centroids[tiss_unit].values
     mean_cols = [f"{ct}_mean" for ct in cell_type_features]
     std_cols = [f"{ct}_std" for ct in cell_type_features]
 
@@ -109,36 +109,36 @@ def spatial_probability_mapping(
 
     print(probabilities_df.head())
 
-    filtered_cells = df[df["unique_region"] == desired_region]
+    filtered_cells = df[df[reg] == desired_region]
 
     filtered_probabilities_df = probabilities_df.loc[filtered_cells.index]
 
     # Step 1: Retrieve assigned neighborhoods and probabilities for the filtered cells
-    assigned_neighborhoods = filtered_cells["Tissue Unit"]
+    assigned_neighborhoods = filtered_cells[tiss_unit]
 
     assigned_probabilities = filtered_probabilities_df.reindex(filtered_cells.index).apply(
-        lambda row: row[filtered_cells.loc[row.name, "Tissue Unit"]], axis=1
+        lambda row: row[filtered_cells.loc[row.name, tiss_unit]], axis=1
     )
 
     # Step 2: Create a new DataFrame with x, y, assigned neighborhood, probability, and region
     visualization_df = pd.DataFrame(
         {
-            "x": filtered_cells["x"],
-            "y": filtered_cells["y"],
+            X: filtered_cells[X],
+            Y: filtered_cells[Y],
             "assigned_tissueunit": assigned_neighborhoods,
             "assigned_probability": assigned_probabilities,
-            "unique_region": filtered_cells["unique_region"],
+            reg: filtered_cells[reg],
         }
     )
 
     # Step 3: Filter for the desired unique_region
-    filtered_region_df = visualization_df[visualization_df["unique_region"] == desired_region]
+    filtered_region_df = visualization_df[visualization_df[reg] == desired_region]
 
     # Step 4: Create the scatter plot without a colorbar
     plt.figure(figsize=(10, 10), dpi=50)
     plt.scatter(
-        filtered_region_df["x"],
-        filtered_region_df["y"],
+        filtered_region_df[X],
+        filtered_region_df[Y],
         c=filtered_region_df["assigned_probability"],
         cmap="viridis",
         alpha=0.75,
