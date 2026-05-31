@@ -17,6 +17,7 @@ def run_mingl_over_n_clusters(
     output_col_template="Neighborhood_{}",
     return_per_cell=True,
     plot_summary=True,
+    show: bool = True,
     *,
     x_key="x",
     y_key="y",
@@ -144,7 +145,8 @@ def run_mingl_over_n_clusters(
 
         plt.title("Log-Likelihood and Assigned Probability vs. Neighborhood Count")
         fig.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
 
     return (summary_df, per_cell_df) if return_per_cell else summary_df
 
@@ -325,7 +327,7 @@ def find_best_unsupervised_plateau(
 
     return composite_df, best_n, ranked_plateaus
 
-def plot_stable_composite(df, best_n, ll_n=None, prob_n=None):
+def plot_stable_composite(df, best_n, ll_n=None, prob_n=None, show: bool = True):
     import matplotlib.pyplot as plt
 
     plt.rcParams.update({"font.size": 25})
@@ -379,7 +381,8 @@ def plot_stable_composite(df, best_n, ll_n=None, prob_n=None):
         labels.append(f"Probability Elbow n = {prob_n}")
 
     plt.tight_layout()
-    plt.show()
+    if show:
+        plt.show()
 
     legend_fig = plt.figure(figsize=(8, 2.5), dpi=300)
     legend_ax = legend_fig.add_subplot(111)
@@ -389,7 +392,8 @@ def plot_stable_composite(df, best_n, ll_n=None, prob_n=None):
         spine.set_visible(False)
 
     legend_fig.tight_layout()
-    plt.show()
+    if show:
+        plt.show()
 
     return fig, legend_fig
 

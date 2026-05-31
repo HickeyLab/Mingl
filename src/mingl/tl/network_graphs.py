@@ -99,6 +99,7 @@ def plot_neighborhood_pair_graph(
     edge_legend_title_fontsize: int = 18,
     edge_legend_loc: str = "lower right",
     edge_legend_bbox: tuple = (0.98, 0.02),
+    return_fig: bool = False,
 ):
     if uns_key not in adata.uns:
         raise KeyError(f"{uns_key} not found in adata.uns")
@@ -133,7 +134,7 @@ def plot_neighborhood_pair_graph(
     node_colors = [cmap(i % 20) for i, _ in enumerate(G.nodes())]
 
     # --- Plot ---
-    plt.figure(figsize=figsize, dpi=dpi)
+    fig = plt.figure(figsize=figsize, dpi=dpi)
 
     nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=node_colors)
     nx.draw_networkx_edges(G, pos, edge_color=edge_color, width=normalized_weights)
@@ -180,3 +181,5 @@ def plot_neighborhood_pair_graph(
     plt.axis("off")
     plt.tight_layout()
     plt.show()
+    if return_fig:
+        return fig

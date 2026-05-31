@@ -29,6 +29,7 @@ def plot_log2fc_vs_mean_abundance(
     neigh_key="neigh_name",
     cluster_key="Cell Type",
     context_key="Context",
+    return_fig=False,
 ):
     """
     scverse-compatible version:
@@ -199,6 +200,8 @@ def plot_log2fc_vs_mean_abundance(
 
     plt.tight_layout()
     plt.show()
+    if return_fig:
+        return fig, plot_df
     return plot_df
 
 

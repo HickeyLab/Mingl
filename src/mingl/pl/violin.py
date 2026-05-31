@@ -78,6 +78,7 @@ def plot_pooled_violin(
     figsize=None,
     dpi=300,
     cmap_name="GnBu",
+    return_fig: bool = False,
 ):
     df = adata.obs.copy()
 
@@ -208,6 +209,8 @@ def plot_pooled_violin(
             fig_h = 3
             figsize = (fig_w, fig_h)
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    else:
+        fig = ax.figure
 
     cmap = cm.get_cmap(cmap_name)
     colors = [cmap(0.3 + 0.6 * (i / max(1, num_clusters - 1))) for i in range(num_clusters)]
@@ -270,4 +273,6 @@ def plot_pooled_violin(
     ax._mingl_cluster_order = cluster_order_to_plot
     plt.tight_layout()
     plt.show()
+    if return_fig:
+        return fig, ax, rank_df
     return ax, rank_df

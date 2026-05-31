@@ -19,7 +19,8 @@ def spatial_probability_mapping(
     Y = "y",  # Variable for the Y coordinate
     neigh = "Neighborhood",
     tiss_unit = "Tissue Unit",
-    cell_type = "Cell Type"
+    cell_type = "Cell Type",
+    return_fig = False,
 ):
     # Equivalent to: df = pd.read_csv(...)
     df = adata.obs.copy()
@@ -135,7 +136,7 @@ def spatial_probability_mapping(
     filtered_region_df = visualization_df[visualization_df[reg] == desired_region]
 
     # Step 4: Create the scatter plot without a colorbar
-    plt.figure(figsize=(10, 10), dpi=50)
+    fig = plt.figure(figsize=(10, 10), dpi=50)
     plt.scatter(
         filtered_region_df[X],
         filtered_region_df[Y],
@@ -157,4 +158,6 @@ def spatial_probability_mapping(
     # Show the plot
     plt.show()
 
+    if return_fig:
+        return fig, probabilities_df, visualization_df, filtered_region_df
     return probabilities_df, visualization_df, filtered_region_df

@@ -29,6 +29,7 @@ def cnd(
     make_plot: bool = True,
     figsize=(48, 16),
     dpi=60,
+    show: bool = True,
 ):
     """
     Converts your CSV-based script into a scverse-compatible function:
@@ -384,7 +385,8 @@ def cnd(
             print(f"  - Saved colorbar -> {cb_path}")
 
     print(f"✅ Done in {time.time() - t_start:.1f} sec")
-    plt.show()
+    if show:
+        plt.show()
     return {
         "adata": adata,
         "delta_wide_by_context": delta_wide_by_context,

@@ -18,7 +18,8 @@ def plot_log2fc_vs_mean_abundance(df,
                                   abundance_threshold_pct=1.0,
                                   fontsize=12,
                                   annotate_sectors=True,
-                                  min_marker_size=40):
+                                  min_marker_size=40,
+                                  return_fig=False):
     """
     Plot all cell types on one panel:
       x = log2(subset % / global %)
@@ -160,6 +161,7 @@ def plot_log2fc_vs_mean_abundance(df,
 
     plt.tight_layout()
     plt.show()
-
+    if return_fig:
+        return fig, plot_df
     return plot_df
 

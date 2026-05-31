@@ -24,6 +24,7 @@ def spatial_loc_region(
     alpha_both: float = 0.9,
     colors: dict | None = None,
     ax=None,
+    show: bool = True,
 ):
     """
     scverse-compatible spatial overlap plot for two neighborhoods.
@@ -80,6 +81,7 @@ def spatial_loc_region(
     fig.tight_layout()
 
     masks = {"other": mask_other, "only_1": mask_only_1, "only_2": mask_only_2, "both": mask_both}
-    plt.show()
+    if show:
+        plt.show()
     return fig, ax, masks
 

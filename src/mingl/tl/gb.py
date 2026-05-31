@@ -125,6 +125,7 @@ def gb_prob_bin_cluster_plots(
     # Output keys
     out_prefix: str = "pb",
     make_plots: bool = True,
+    show: bool = True,
 ) -> Dict[str, Any]:
     """
     scverse-compatible implementation of your Plot 1 (inner/outer bar by ranked cluster)
@@ -280,7 +281,8 @@ def gb_prob_bin_cluster_plots(
         ax.set_xlim(left_limit - span * 0.02, right_limit + span * 0.02)
 
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         figs["plot1_bars"] = fig1
 
         # ---- Plot 1 legend as a separate tiny figure
@@ -305,7 +307,8 @@ def gb_prob_bin_cluster_plots(
         if hasattr(leg, "get_frame"):
             leg.get_frame().set_alpha(0.0)
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         figs["plot1_legend"] = fig_leg
 
     # ---- Plot 2: pooled violin of Score across inner+outer, using ranked order + min_cells filter
@@ -393,7 +396,8 @@ def gb_prob_bin_cluster_plots(
         ax.set_xlim(left_limit - pad, right_limit + pad)
 
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         figs["plot2_violin"] = fig2
 
     # ---- write to adata.uns
@@ -449,6 +453,7 @@ def gb_local_score_gradients(
     alpha_pts: float = 0.95,
     vmax_pct: float = 99.0,
     out_prefix: str = "grad",
+    show: bool = True,
 ) -> Dict[str, Any]:
 
     if region_key not in adata.obs.columns:
@@ -634,7 +639,8 @@ def gb_local_score_gradients(
         ax1.set_aspect("equal", "box")
         ax1.axis("off")
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         figs["scatter"] = fig1
 
         norm = Normalize(vmin=vmin, vmax=vmax)
@@ -650,7 +656,8 @@ def gb_local_score_gradients(
         cbar.ax.tick_params(labelsize=cb_labelsize)
         cbar.set_label("Normalized Gradient Magnitude\n(IQR per median-NN distance)", fontsize=cb_labelsize)
         #plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         figs["colorbar"] = fig2
 
     return {"summary": summary, "params": params, "figs": figs}

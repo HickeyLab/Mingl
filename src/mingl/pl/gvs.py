@@ -26,7 +26,8 @@ def plot_global_vs_subset_horizontal_buckets(
     neigh_key: str = "neigh_name",
     cluster_key: str = "Cell Type",
     context_key: str = "Context",
-) -> None:
+    return_fig: bool = False,
+) -> "plt.Figure | None":
     """
     AnnData/scverse compatible:
       - `data` can be AnnData (uses data.obs) OR a pandas DataFrame.
@@ -202,6 +203,8 @@ def plot_global_vs_subset_horizontal_buckets(
     fig.supxlabel("Proportion of Neighborhood (%)", fontsize=label_fontsize)
     plt.tight_layout()
     plt.show()
+    if return_fig:
+        return fig
 
 
 def auto_assign_buckets(unique_cts: Sequence[str]) -> Tuple[List[str], List[str], List[str]]:
