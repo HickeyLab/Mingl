@@ -10,6 +10,45 @@ from sklearn.cluster import MiniBatchKMeans
 import matplotlib.pyplot as plt
 import anndata as ad
 
+def _clustering_order(adata, n_rows, how="original", order_key=None):
+    """Row order in which to fit MiniBatchKMeans, for reproducibility.
+
+    MiniBatchKMeans draws mini-batches in input-row order, so its result (and
+    therefore the selected neighborhood count) depends on how ``adata.obs``
+    happens to be ordered. Returns a permutation of ``range(n_rows)`` giving a
+    canonical "original cell" order so the fit is invariant to caller ordering.
+
+    how="original" (default): sort by ``order_key`` if given, else by
+    integer-castable ``obs_names`` (e.g. "0".."N-1", which survives a physical
+    row reshuffle or a lexicographic string re-index); otherwise fall back to
+    the current order with a warning.
+    how="as_given": keep the AnnData's current row order (legacy behavior).
+    """
+    if how == "as_given":
+        return np.arange(n_rows)
+    if how != "original":
+        raise ValueError("cluster_row_order must be 'original' or 'as_given'")
+    if order_key is not None:
+        if order_key not in adata.obs.columns:
+            raise KeyError(f"order_key '{order_key}' not in adata.obs")
+        return np.argsort(np.asarray(adata.obs[order_key].values), kind="stable")
+    names = np.asarray(adata.obs_names)
+    try:
+        keys = names.astype(np.int64)
+    except (ValueError, TypeError):
+        import warnings
+
+        warnings.warn(
+            "run_mingl_over_n_clusters: obs_names are not integer-castable and "
+            "no order_key was given, so a canonical original cell order could "
+            "not be derived; clustering in the AnnData's current row order. "
+            "Pass order_key=<obs column> to pin a reproducible order.",
+            stacklevel=2,
+        )
+        return np.arange(n_rows)
+    return np.argsort(keys, kind="stable")
+
+
 def run_mingl_over_n_clusters(
     adata,
     knn_feature_cols,
@@ -23,7 +62,18 @@ def run_mingl_over_n_clusters(
     y_key="y",
     region_key="unique_region",
     results_uns_key="mingl_n_clusters",
+    cluster_row_order="original",
+    order_key=None,
 ):
+    """Fit MiniBatchKMeans over a range of neighborhood counts and score each.
+
+    Clustering is fit in a canonical original-cell order (see
+    ``cluster_row_order`` / ``order_key`` and :func:`_clustering_order`) and the
+    labels are mapped back to the caller's row order, so the selected
+    neighborhood count is reproducible regardless of how ``adata.obs`` is
+    ordered. Set ``cluster_row_order="as_given"`` for the legacy,
+    order-sensitive behavior.
+    """
     for k in (x_key, y_key, region_key):
         if k not in adata.obs.columns:
             raise KeyError(f"adata.obs missing required key '{k}'")
@@ -37,9 +87,15 @@ def run_mingl_over_n_clusters(
     scaler = StandardScaler()
     X_scaled_all = scaler.fit_transform(df[knn_feature_cols].values)
 
+    # Fit KMeans in a canonical order for reproducibility, then map labels back
+    # to the caller's row order. Centroids/eval/summary are order-invariant given
+    # a fixed partition, so only the fit order (and thus the partition) matters.
+    order = _clustering_order(adata, len(df), how=cluster_row_order, order_key=order_key)
+    inv = np.argsort(order, kind="stable")
+
     for n in tqdm(n_range, desc="Running KMeans + MINGL (CPU)"):
         km = MiniBatchKMeans(n_clusters=n, random_state=0)
-        labels = km.fit_predict(X_scaled_all)
+        labels = km.fit_predict(X_scaled_all[order])[inv]
         cluster_col = output_col_template.format(n)
         df[cluster_col] = labels.astype(str)
 
