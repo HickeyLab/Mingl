@@ -1,6 +1,42 @@
+"""Gradient/transition-cluster summaries and the transition steepness metric.
+
+Methodology (addresses reviewer comments R1.5 and R1.9)
+-------------------------------------------------------
+The gradient workflow turns a pair of organizational units into an ordered
+sequence of "transition clusters" and quantifies how abruptly composition changes
+across them:
+
+1. **Score.** Each cell gets a probability-ratio Score,
+   ``log(P(unit1)/P(unit2)) * max(P(unit1), P(unit2))`` (see
+   :func:`mingl.tl.grad.mingl_neighborhoods_scverse`), positioning it along the
+   unit1<->unit2 continuum.
+2. **Transition clusters.** Cells are clustered by the composition of their
+   spatial neighbors' probability-ratio bins (``Probability_Bin_Cluster``). A
+   cluster label is just an id; it carries no order on its own.
+3. **Deterministic ordering (R1.9).** Because k-means labels are arbitrary, the
+   clusters are ordered *deterministically* by how enriched each is for the
+   high-Score end of the gradient. Each cluster gets a size-normalized weighted
+   proportion ``sum_b prop_b * 2**rank(b)`` over the canonical bins
+   ``Very Low < Low < Medium < High < Very High`` (exponential weights make
+   "Very High" dominate), then clusters are sorted by that value (ties broken by
+   size). This ordering is what makes the gradient direction reproducible and is
+   critical to every downstream gradient output.
+4. **Steepness (R1.5).** With clusters in that order, transition steepness is the
+   mean absolute second difference of the per-cluster mean Score
+   (:func:`steepness_score`). A large value means the mean Score jumps unevenly
+   from cluster to cluster (sharp transition); a small value means it changes
+   smoothly (gradual transition).
+
+Because the steepness value depends on the bin count, cluster count, neighbor
+count, and spatial sampling density, its *absolute* magnitude is not meant to be
+compared across settings; the reproducible, biologically meaningful signal is the
+*ordering* of transitions (sharp vs gradual). See :mod:`mingl.tl.simulate` and
+:mod:`mingl.tl.sensitivity` for the ground-truth and robustness validation.
+"""
+
 from __future__ import annotations
 
-from typing import Optional, Dict, Any, Tuple, List
+from typing import Optional, Dict, Any, Tuple, List, Sequence
 
 import numpy as np
 import pandas as pd
@@ -707,6 +743,165 @@ def gb(
         out_prefix=grad_prefix,
     )
     return {"plot12": out12, "plot3": out3}
+
+
+# ============================================================
+# Deterministic transition-cluster ordering + steepness metric
+# (extracted from the manuscript notebooks; see module docstring, R1.5/R1.9)
+# ============================================================
+def order_transition_clusters(
+    df: pd.DataFrame,
+    *,
+    cluster_key: str = "Probability_Bin_Cluster",
+    score_key: str = "Score",
+    canonical_bins: Sequence[str] = ("Very Low", "Low", "Medium", "High", "Very High"),
+    n_bins: int = 5,
+) -> List[str]:
+    """Deterministically order transition clusters low->high along the gradient.
+
+    Reproduces the ordering rule used throughout the gradient workflow (R1.9): the
+    Score is binned into ``canonical_bins`` by quantile, each cluster gets a
+    size-normalized weighted proportion ``sum_b prop_b * 2**rank(b)``, and clusters
+    are sorted by that value descending (ties broken by cluster size). The returned
+    list runs from the most high-Score-enriched cluster to the least, i.e. the
+    canonical gradient order.
+
+    Rows whose cluster label is missing (NaN / ``"nan"`` / ``"none"``) are ignored,
+    so a partially labeled column (e.g. only target-neighborhood cells clustered)
+    is handled correctly.
+    """
+    canonical_bins = list(canonical_bins)
+    weights = {b: 2 ** i for i, b in enumerate(canonical_bins)}
+
+    d = df.copy()
+    d["_cluster_str"] = d[cluster_key].astype(str).str.strip()
+    # Drop rows without a real cluster label.
+    d = d[~d["_cluster_str"].str.lower().isin({"nan", "none", ""})]
+    if d.empty:
+        return []
+
+    s = pd.to_numeric(d[score_key], errors="coerce")
+    if s.notna().any():
+        try:
+            mapped = pd.qcut(s, q=n_bins, labels=canonical_bins, duplicates="drop")
+            d["_bin_mapped"] = mapped.astype(object)
+        except Exception:
+            v = s.dropna()
+            if v.empty:
+                d["_bin_mapped"] = "Medium"
+            else:
+                edges = np.unique(np.linspace(float(v.min()), float(v.max()), n_bins + 1))
+                labels_use = canonical_bins[: max(1, len(edges) - 1)]
+                d["_bin_mapped"] = pd.cut(s, bins=edges, labels=labels_use, include_lowest=True).astype(object)
+    else:
+        d["_bin_mapped"] = "Medium"
+
+    rows = []
+    for cl in sorted(d["_cluster_str"].unique(), key=str):
+        sub = d[d["_cluster_str"] == cl]
+        n = len(sub)
+        if n == 0:
+            continue
+        vc = sub["_bin_mapped"].value_counts(dropna=False).to_dict()
+        props = {b: vc.get(b, 0) / n for b in canonical_bins}
+        weighted_prop = sum(props[b] * weights[b] for b in canonical_bins)
+        rows.append({"cluster": cl, "weighted_prop": weighted_prop, "total": n})
+
+    rank_df = (
+        pd.DataFrame(rows)
+        .sort_values(["weighted_prop", "total"], ascending=[False, False])
+        .reset_index(drop=True)
+    )
+    return rank_df["cluster"].tolist()
+
+
+def steepness_score(
+    adata,
+    *,
+    cluster_key: str = "Probability_Bin_Cluster",
+    score_key: str = "Score",
+    canonical_bins: Sequence[str] = ("Very Low", "Low", "Medium", "High", "Very High"),
+    n_bins: int = 5,
+) -> Dict[str, Any]:
+    """Quantify transition steepness from ordered transition clusters (R1.5).
+
+    This packages the manuscript's steepness metric as a reproducible, testable
+    function. Steps:
+
+    1. Order the transition clusters with :func:`order_transition_clusters`.
+    2. Compute the mean Score of each cluster in that order.
+    3. Take first (``diff``) and second (``diff`` of ``diff``) differences of those
+       ordered means.
+    4. ``steepness = mean(|second difference|)`` — the raw mean absolute second
+       derivative. Larger => the gradient changes unevenly (sharp); smaller =>
+       smooth (gradual).
+
+    Accepts either an ``AnnData`` (reads ``adata.obs``) or a ``DataFrame``.
+
+    Returns a dict with ``steepness``, plus supporting quantities: ``slope`` and
+    ``slope_norm`` (global least-squares slope of the ordered means, and that slope
+    divided by the Score IQR, for reference), ``ordered_clusters``,
+    ``ordered_means``, ``first_derivative``, ``second_derivative``, ``score_iqr``,
+    and ``n_clusters``.
+    """
+    obs = adata.obs if hasattr(adata, "obs") else adata
+    for key in (cluster_key, score_key):
+        if key not in obs.columns:
+            raise KeyError(f"'{key}' not found in obs/DataFrame columns.")
+
+    ordered = order_transition_clusters(
+        obs,
+        cluster_key=cluster_key,
+        score_key=score_key,
+        canonical_bins=canonical_bins,
+        n_bins=n_bins,
+    )
+
+    cluster_str = obs[cluster_key].astype(str).str.strip()
+    means_by_cluster = pd.to_numeric(obs[score_key], errors="coerce").groupby(cluster_str).mean()
+    clusters_in_plot = [c for c in ordered if c in means_by_cluster.index]
+    means = means_by_cluster.loc[clusters_in_plot].to_numpy(dtype=float)
+
+    n = len(means)
+    result: Dict[str, Any] = {
+        "steepness": float("nan"),
+        "slope": float("nan"),
+        "slope_norm": float("nan"),
+        "ordered_clusters": clusters_in_plot,
+        "ordered_means": means.tolist(),
+        "first_derivative": [],
+        "second_derivative": [],
+        "score_iqr": float("nan"),
+        "n_clusters": int(n),
+    }
+    if n < 2:
+        return result
+
+    from sklearn.linear_model import LinearRegression
+
+    x_idx = np.arange(n).reshape(-1, 1)
+    lr = LinearRegression().fit(x_idx, means.reshape(-1, 1))
+    slope = float(lr.coef_[0][0])
+
+    score_vals = pd.to_numeric(obs[score_key], errors="coerce").dropna().to_numpy(dtype=float)
+    q1, q3 = np.percentile(score_vals, [25, 75])
+    iqr = float(max(1e-8, q3 - q1))
+
+    fd = np.diff(means)
+    sd = np.diff(fd) if len(fd) >= 2 else np.array([])
+    steepness = float(np.mean(np.abs(sd))) if sd.size else float("nan")
+
+    result.update(
+        {
+            "steepness": steepness,
+            "slope": slope,
+            "slope_norm": abs(slope) / iqr,
+            "first_derivative": fd.tolist(),
+            "second_derivative": sd.tolist(),
+            "score_iqr": iqr,
+        }
+    )
+    return result
 
 
 

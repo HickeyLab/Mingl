@@ -1,3 +1,32 @@
+"""Probability-ratio Score and transition-cluster construction (R1.5 / R1.9).
+
+Step-by-step, :func:`mingl_neighborhoods_scverse` does the following:
+
+1. **Probability-ratio Score.** For each cell,
+   ``Score = log((P(unit1)+eps)/(P(unit2)+eps)) * max(P(unit1), P(unit2))``.
+   The log-ratio places the cell on the unit1<->unit2 axis; the ``max`` factor
+   down-weights cells whose local composition is ambiguous for both units.
+2. **Probability-level bins.** The Score is discretized into ``n_bins`` ordered
+   levels (``Very Low`` .. ``Very High``) by :func:`assign_probability_level_with_edges`.
+   Binning is by **quantile** when ``use_quantiles=True`` (equal-count bins; the
+   default here) and falls back to **equal width** otherwise. Note that the labels
+   read like percentile ranks but the numeric edges differ between the two modes,
+   so the binning mode should be stated explicitly wherever the Score is re-binned
+   downstream.
+3. **Spatial neighbor-bin composition.** The :class:`Neighborhoods` class counts,
+   for each cell, how many of its ``k`` nearest spatial neighbors fall in each
+   probability-level bin — a local "what does the gradient look like around me"
+   vector.
+4. **Transition clusters.** Cells in the two target units are clustered
+   (``MiniBatchKMeans``, seeded by ``random_state``) on those neighbor-bin vectors
+   into ``Probability_Bin_Cluster`` labels. These labels are unordered; the
+   deterministic gradient ordering is applied later
+   (:func:`mingl.tl.gb.order_transition_clusters`).
+
+The fold-change table (``fc``) summarizes each cluster's bin composition relative
+to the tissue average and is ordered by high-bin enrichment for display.
+"""
+
 import numpy as np
 import pandas as pd
 import anndata as ad
