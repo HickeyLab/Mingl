@@ -182,6 +182,33 @@ res = mg.tl.threshold_sensitivity_analysis(adata, cell_type_col="Cell Type")
 Column-name presets in the drivers are defaults; override with `--cluster-col`,
 `--neighborhood-col`, `--region-key`, `--x-key`, `--y-key` as needed.
 
+### Verified dataset schemas (lab data, read-only inspection)
+
+The driver presets were checked against the real files and match exactly:
+
+| dataset | rows | cluster col | neighborhood col | region col | hierarchy levels | min cells/region |
+|---|---|---|---|---|---|---|
+| intestine (`05_25_HuBMAP_tunit.csv`) | 2,512,002 | `Cell Type` (25) | `Neighborhood` (20) | `unique_region` (64) | Neighborhood, Community (10), Tissue Unit (4) | 5,829 |
+| melanoma (`melanoma_all_information.csv`) | 5,019,159 | `Cell_Type` (39) | `Neighborhood` (16) | `filename` (21) | Neighborhood | 24,849 |
+| esophagus (`all_regions_from_h5mu.csv`) | 645,661 | `Cell Type` (45) | `neigh_name` (24) | `region` (28) | neigh_name, community (10, lowercase) | 5,157 |
+
+Consequences for the runs:
+
+* All three presets are correct as shipped; no overrides needed for the default
+  (neighborhood-level) runs. No NaNs in any key column; every region has far more
+  than `k=10` cells.
+* Intestine has all three hierarchy levels — the three-level Task 3 run works with
+  `--neighborhood-col "Community"` and `--neighborhood-col "Tissue Unit"`.
+  Esophagus has a lowercase `community` level (no Tissue Unit); use
+  `--recompute --neighborhood-col "community"`.
+* **Melanoma is 5.0M cells** (largest region 1.5M). Recomputing windows and fitting
+  every emission model at that scale is heavy, and the Dirichlet-multinomial MLE is
+  O(cells × iterations). For the melanoma comparison, use
+  `--subsample-frac 0.1` (or `0.2`) and/or restrict with
+  `--models diagonal_gaussian full_gaussian multinomial`. Intestine (2.5M) and
+  esophagus (0.65M) are fine at full size, though a first pass with
+  `--subsample-frac 0.3` is a good smoke test.
+
 ## 7. Results tables to complete from the lab-server runs
 
 Fill these from the CSVs written to `tools/reviewer_emission_models_outputs/` and
