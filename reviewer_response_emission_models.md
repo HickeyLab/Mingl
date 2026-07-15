@@ -209,23 +209,64 @@ Consequences for the runs:
   esophagus (0.65M) are fine at full size, though a first pass with
   `--subsample-frac 0.3` is a good smoke test.
 
-## 7. Results tables to complete from the lab-server runs
+## 7. Results on the lab datasets
 
-Fill these from the CSVs written to `tools/reviewer_emission_models_outputs/` and
-`tools/reviewer_threshold_sensitivity_outputs/` on each real dataset.
+Produced by the drivers on the real data (intestine 2.51M cells, melanoma 5.02M,
+esophagus 0.65M); melanoma emission was fit on a 30% subsample. CSVs/figures live
+in `tools/reviewer_emission_models_outputs/<dataset>/` and
+`tools/reviewer_threshold_sensitivity_outputs/<dataset>__<level>/`.
 
-**Emission-model comparison (per dataset).**
+### 7a. Emission-model comparison (held-out neighborhood recovery)
 
-| dataset | model | test log-loss | test acc | entropy | border frac | BIC (Gaussian) |
+Lower log-loss / higher accuracy is better. The **count-based models win decisively
+on every dataset**, and the full-covariance Gaussian — best in-sample BIC — is the
+**worst** out-of-sample (it over-fits its 7k–26k parameters), which is exactly why
+raw likelihood/BIC is the wrong yardstick and the held-out metric is used.
+
+| dataset | model | test log-loss ↓ | test acc ↑ | entropy | border frac | n_params |
 |---|---|---|---|---|---|---|
-| intestine | … | | | | | |
-| melanoma | … | | | | | |
-| spatial | … | | | | | |
+| **intestine** | multinomial | **0.611** | **0.817** | 0.51 | 0.217 | 480 |
+| (20 nbhd, 25 ct) | dirichlet_multinomial | 0.658 | 0.790 | 0.75 | 0.288 | 500 |
+| | logistic_normal | 2.725 | 0.640 | 0.24 | 0.138 | 6,480 |
+| | diagonal_gaussian (current) | 2.847 | 0.665 | 0.22 | 0.115 | 1,000 |
+| | full_gaussian | 2.955 | 0.640 | 0.25 | 0.124 | 7,000 |
+| **melanoma** | dirichlet_multinomial | **1.399** | 0.542 | 0.99 | 0.311 | 624 |
+| (16 nbhd, 39 ct) | multinomial | 1.712 | **0.554** | 0.65 | 0.257 | 608 |
+| | logistic_normal | 4.748 | 0.487 | 0.36 | 0.200 | 12,464 |
+| | diagonal_gaussian (current) | 5.283 | 0.494 | 0.28 | 0.158 | 1,248 |
+| | full_gaussian | 5.658 | 0.473 | 0.28 | 0.162 | 13,104 |
+| **esophagus** | multinomial | **0.586** | **0.821** | 0.38 | 0.174 | 1,056 |
+| (24 nbhd, 45 ct) | dirichlet_multinomial | 0.663 | 0.778 | 0.62 | 0.241 | 1,080 |
+| | diagonal_gaussian (current) | 4.907 | 0.624 | 0.11 | 0.064 | 2,160 |
+| | logistic_normal | 7.838 | 0.559 | 0.06 | 0.037 | 24,816 |
+| | full_gaussian | 12.662 | 0.452 | 0.05 | 0.027 | 25,920 |
 
-**Border threshold sensitivity (per dataset).**
+Border-cell counts at threshold 0.25 vary 2–9× across emission models (e.g.
+esophagus: full-Gaussian 17.1k vs Dirichlet-multinomial 154.9k), so the emission
+assumption is not cosmetic — it changes which cells are called interfaces.
 
-| dataset | threshold | n border | border frac | top enriched cell types |
-|---|---|---|---|---|
-| intestine | 0.01 … 0.49 | | | |
-| melanoma | 0.01 … 0.49 | | | |
-| spatial | 0.01 … 0.49 | | | |
+### 7b. Border threshold sensitivity (regular MINGL / diagonal model, full data)
+
+Number of border cells (strictly monotone in every case):
+
+| threshold | intestine · nbhd | intestine · community | intestine · tissue-unit | melanoma · nbhd | esophagus · neigh |
+|---|---|---|---|---|---|
+| 0.01 | 1,096,727 | 1,050,271 | 403,946 | 1,849,774 | 171,638 |
+| 0.10 | 603,690 | 569,686 | 203,421 | 948,447 | 85,323 |
+| 0.25 | 291,543 | 279,554 | 106,940 | 464,229 | 41,652 |
+| 0.40 | 77,712 | 80,026 | 37,964 | 165,108 | 12,610 |
+| 0.49 | 3,360 | 3,800 | 4,204 | 10,556 | 898 |
+
+* **Stability.** Border-cell-type enrichment is highly robust to the threshold:
+  on intestine the per-type log2-enrichment correlates Pearson ≥ 0.99 (Spearman ≥
+  0.99) across the 0.01→0.25 steps, dropping only at the extreme 0.40→0.49 step.
+  The border-cell *set* Jaccard is 0.55 → 0.48 → 0.27 → 0.04 as the threshold rises,
+  i.e. location is stable through the usable range and only collapses near 0.49.
+* **Top border-enriched cell types (@0.25)** are biologically coherent and match the
+  paper's themes: intestine — Lymphatic, ICC, DC, CD4+ T, M2 Macrophage; melanoma —
+  Tumor subsets + CD163+CD206+ Macrophage + DC (tumor–immune interfaces); esophagus
+  — CD4+ T, CD4+ Treg, M1/M2 Macrophage, CD8+ T (immune-enriched interfaces).
+* **Null condition.** The spatial permutation null (esophagus) shows border cells are
+  significantly clustered — observed nearest-neighbor distance is well below the null
+  at every threshold (e.g. @0.25: 42.1 vs 57.7 ± 0.2), empirical p = 0.01 (floor for
+  100 permutations) — so border *location* is real spatial structure, not chance.
