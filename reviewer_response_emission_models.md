@@ -141,9 +141,32 @@ python tools/reviewer_emission_models.py --dataset spatial   --data <spatial>.h5
 
 # Task 3 — threshold sensitivity (regular MINGL = diagonal model)
 python tools/reviewer_threshold_sensitivity.py --synthetic --null        # local demo
+
+# intestine, three hierarchy levels (each writes to its own tagged subfolder):
+#   neighborhood level uses the posterior already stored in the h5ad;
+#   community / tissue-unit levels are re-scored against that column.
 python tools/reviewer_threshold_sensitivity.py --dataset intestine --data intestine_results.h5ad --null
-python tools/reviewer_threshold_sensitivity.py --dataset spatial   --data <spatial>.h5ad
+python tools/reviewer_threshold_sensitivity.py --dataset intestine --data intestine_results.h5ad \
+    --recompute --neighborhood-col "Community" --null
+python tools/reviewer_threshold_sensitivity.py --dataset intestine --data intestine_results.h5ad \
+    --recompute --neighborhood-col "Tissue Unit" --null
+
+# intestine null condition (point --data at your null h5ad):
+python tools/reviewer_threshold_sensitivity.py --dataset intestine --data intestine_null.h5ad --null
+
+# spatial transcriptomics (Barrett's esophagus):
+python tools/reviewer_threshold_sensitivity.py --dataset spatial   --data <esophagus>.h5ad --null
 ```
+
+Notes for Task 3:
+* The neighborhood-level run reads the posterior already in the intestine h5ad
+  (the regular MINGL result); the community / tissue-unit runs re-score with the
+  diagonal model against those columns (`--recompute --neighborhood-col ...`),
+  which reproduces the regular MINGL pipeline at that hierarchy level.
+* Outputs are written to `--out-dir/<dataset>__<level>/`, so the three levels do
+  not overwrite each other.
+* If a real file has no stored posterior and no neighborhood column under the
+  expected name, pass `--neighborhood-col` (and `--cluster-col` etc.) explicitly.
 
 Library API:
 

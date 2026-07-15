@@ -194,9 +194,12 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--models", nargs="+", default=MODEL_ORDER)
     ap.add_argument("--out-dir", default=os.path.join(os.path.dirname(__file__), "reviewer_emission_models_outputs"))
+    ap.add_argument("--tag", default=None, help="Subfolder name for outputs (default: dataset name, so datasets don't overwrite).")
     args = ap.parse_args()
 
-    os.makedirs(args.out_dir, exist_ok=True)
+    tag = args.tag or ("synthetic" if args.synthetic else args.dataset)
+    out_dir = os.path.join(args.out_dir, tag)
+    os.makedirs(out_dir, exist_ok=True)
     preset = dict(DATASET_PRESETS[args.dataset])
     cols = {
         "cluster_col": args.cluster_col or preset["cluster_col"],
@@ -225,8 +228,8 @@ def main():
         adata = adata[keep].copy()
         print(f"Subsampled to {adata.n_obs} cells (frac={args.subsample_frac}).")
 
-    print(f"Cells: {adata.n_obs}  Columns: {cols}")
-    print(f"Output directory: {args.out_dir}\n")
+    print(f"Cells: {adata.n_obs}  Tag: {tag}  Columns: {cols}")
+    print(f"Output directory: {out_dir}\n")
 
     print("== Held-out model comparison ==")
     cmp = _quiet(
@@ -244,18 +247,18 @@ def main():
         test_size=args.test_size,
         seed=args.seed,
     )
-    cmp.to_csv(os.path.join(args.out_dir, "emission_model_comparison.csv"), index=False)
+    cmp.to_csv(os.path.join(out_dir, "emission_model_comparison.csv"), index=False)
     show_cols = ["model", "test_logloss", "test_accuracy", "mean_entropy", "frac_border", "n_params", "bic"]
     print(cmp[show_cols].round(4).to_string(index=False))
 
-    fig1 = comparison_figure(cmp, args.out_dir)
-    fig2 = gaussian_bic_figure(cmp, args.out_dir)
+    fig1 = comparison_figure(cmp, out_dir)
+    fig2 = gaussian_bic_figure(cmp, out_dir)
 
     print("\n== Per-model border summary ==")
-    border = per_model_border_summary(adata, cols, args.threshold, args.out_dir)
+    border = per_model_border_summary(adata, cols, args.threshold, out_dir)
     print(border.round(4).to_string(index=False))
 
-    print(f"\nArtifacts written to {args.out_dir}")
+    print(f"\nArtifacts written to {out_dir}")
     print(f"  - emission_model_comparison.csv / {os.path.basename(fig1)}")
     if fig2:
         print(f"  - {os.path.basename(fig2)}")

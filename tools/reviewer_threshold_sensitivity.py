@@ -162,9 +162,9 @@ def main():
     ap.add_argument("--n-permutations", type=int, default=200)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out-dir", default=os.path.join(os.path.dirname(__file__), "reviewer_threshold_sensitivity_outputs"))
+    ap.add_argument("--tag", default=None, help="Subfolder name for outputs (default: dataset + border level, so multiple levels/datasets don't overwrite).")
     args = ap.parse_args()
 
-    os.makedirs(args.out_dir, exist_ok=True)
     preset = dict(DATASET_PRESETS[args.dataset])
     cluster_col = args.cluster_col or preset["cluster_col"]
     neighborhood_col = args.neighborhood_col or preset["neighborhood_col"]
@@ -172,6 +172,14 @@ def main():
     x_key = args.x_key or preset["x_key"]
     y_key = args.y_key or preset["y_key"]
     ks = tuple(args.ks)
+
+    # Keep each dataset/hierarchy-level run in its own subfolder.
+    def _slug(s):
+        return "".join(c if c.isalnum() else "_" for c in str(s)).strip("_")
+
+    tag = args.tag or f"{'synthetic' if args.synthetic else args.dataset}__{_slug(neighborhood_col)}"
+    out_dir = os.path.join(args.out_dir, tag)
+    os.makedirs(out_dir, exist_ok=True)
 
     if args.synthetic:
         print("Loading synthetic multi-neighborhood tissue (no lab data).")
@@ -186,7 +194,8 @@ def main():
 
     have_probs = args.prob_key in adata.obsm
     if args.recompute or not have_probs:
-        print(f"Scoring memberships with model={args.model} (regular MINGL = diagonal_gaussian).")
+        why = "recompute requested" if (args.recompute and have_probs) else "no stored posterior"
+        print(f"Scoring memberships at the '{neighborhood_col}' level with model={args.model} ({why}).")
         _quiet(
             tl.mingl_membership_probabilities,
             adata,
@@ -202,10 +211,14 @@ def main():
             prob_variable_key=args.prob_variable_key,
         )
     else:
-        print(f"Using existing posterior in obsm[{args.prob_key!r}].")
+        names = [str(c) for c in adata.uns.get(args.prob_variable_key, [])]
+        preview = ", ".join(names[:6]) + (" ..." if len(names) > 6 else "")
+        print(f"Using existing posterior in obsm[{args.prob_key!r}] with {len(names)} units: {preview}")
+        print("  (This is whatever level was stored. For a specific hierarchy level use "
+              "--recompute --neighborhood-col \"Community\" | \"Tissue Unit\".)")
 
-    print(f"Cells: {adata.n_obs}  Thresholds: {args.thresholds}")
-    print(f"Output directory: {args.out_dir}\n")
+    print(f"Cells: {adata.n_obs}  Border level tag: {tag}  Thresholds: {args.thresholds}")
+    print(f"Output directory: {out_dir}\n")
 
     res = tl.threshold_sensitivity_analysis(
         adata,
@@ -216,9 +229,9 @@ def main():
         region_key=region_key,
         coord_keys=(x_key, y_key),
     )
-    res["summary"].to_csv(os.path.join(args.out_dir, "threshold_summary.csv"), index=False)
-    res["composition"].to_csv(os.path.join(args.out_dir, "threshold_composition.csv"), index=False)
-    res["stability"].to_csv(os.path.join(args.out_dir, "threshold_stability.csv"), index=False)
+    res["summary"].to_csv(os.path.join(out_dir, "threshold_summary.csv"), index=False)
+    res["composition"].to_csv(os.path.join(out_dir, "threshold_composition.csv"), index=False)
+    res["stability"].to_csv(os.path.join(out_dir, "threshold_stability.csv"), index=False)
 
     print("== Border count / location vs threshold ==")
     print(res["summary"].round(4).to_string(index=False))
@@ -228,9 +241,9 @@ def main():
     nb = res["summary"]["n_border"].to_numpy()
     print(f"\nn_border monotone non-increasing in threshold: {bool(np.all(np.diff(nb) <= 0))}")
 
-    fig1 = count_figure(res["summary"], args.out_dir)
-    fig2 = enrichment_heatmap(res["composition"], args.out_dir)
-    fig3 = stability_figure(res["stability"], args.out_dir)
+    fig1 = count_figure(res["summary"], out_dir)
+    fig2 = enrichment_heatmap(res["composition"], out_dir)
+    fig3 = stability_figure(res["stability"], out_dir)
 
     if args.null:
         print("\n== Spatial border-clustering null ==")
@@ -248,10 +261,10 @@ def main():
             )
             null_rows.append(out)
         null_df = pd.DataFrame(null_rows)
-        null_df.to_csv(os.path.join(args.out_dir, "border_spatial_null.csv"), index=False)
+        null_df.to_csv(os.path.join(out_dir, "border_spatial_null.csv"), index=False)
         print(null_df.round(4).to_string(index=False))
 
-    print(f"\nArtifacts written to {args.out_dir}")
+    print(f"\nArtifacts written to {out_dir}")
     for f in [fig1, fig2, fig3]:
         if f:
             print(f"  - {os.path.basename(f)}")
