@@ -79,7 +79,7 @@ Once your environment has been activated and `pip` has been upgraded, proceed wi
 
 ## Step 2. Install MINGL
 
-### Option 1 (Recommended): Install the latest stable release from PyPI
+### Option 1: Install the latest stable release from PyPI
 
 ```bash
 pip install mingle-hl
