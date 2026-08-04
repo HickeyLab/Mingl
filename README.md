@@ -42,39 +42,143 @@ Please see instructions on installation and our recommended use below. Happy exp
 
 ## Installation
 
-Python 3.11 or newer is required for installation on your system.
+MINGL is implemented as an open-source Python package and is distributed through both **PyPI** and **GitHub**.
 
-We recommend that you install MINGL into a new, fresh environment to avoid any dependency conflicts. First, create your new environment using Python version 3.11 and follow either of the installation methods below. Installation time on MacOS and WindowsOS takes approximately less than 5 minutes.
+## Requirements
 
-There are two options to install MINGL:
+- Python **3.11** or newer
+- Windows or macOS
 
-1. Install the latest release from [PyPI][]:
+We strongly recommend installing MINGL into a **new Python virtual environment** to avoid dependency conflicts and ensure a reproducible software setup.
+
+---
+
+## Step 1. Create a new Python environment
+
+### Windows
+
+Using the Python launcher:
+
+```bash
+py -3.11 -m venv mingl-env
+mingl-env\Scripts\activate
+python -m pip install --upgrade pip
+```
+
+### macOS
+
+```bash
+python3.11 -m venv mingl-env
+source mingl-env/bin/activate
+python -m pip install --upgrade pip
+```
+
+Once your environment has been activated and `pip` has been upgraded, proceed with one of the installation methods below.
+
+---
+
+## Step 2. Install MINGL
+
+### Option 1 (Recommended): Install the latest stable release from PyPI
 
 ```bash
 pip install mingle-hl
 ```
 
-Import the library in Python with:
+### Option 2: Install the latest development version from GitHub
 
-```python
-import mingl as mg
-```
-
-2. Install the latest development version:
+Install directly from the latest development branch:
 
 ```bash
 pip install git+https://github.com/HickeyLab/Mingl.git@main
 ```
-Dependencies required are as follows: "anndata>=0.10,<0.13", "numpy>=1.26,<3", "pandas>=2.2,<3.0", "scipy>=1.12,<2", "scikit-learn>=1.4,<2", "matplotlib>=3.8,<4", "seaborn>=0.13,<0.14", "networkx>=3.2,<4", "tqdm>=4.66,<5", "session-info2"
+
+Alternatively, clone the repository locally and install from source:
+
+```bash
+git clone https://github.com/HickeyLab/Mingl.git
+cd Mingl
+pip install .
+```
+
+---
+
+## Step 3. Verify your installation
+
+Open Python (or a Jupyter notebook) and verify that MINGL imports successfully.
+
+```python
+import mingl as mg
+
+print(mg.__version__)
+```
+
+If no errors are produced, MINGL has been successfully installed.
+
+---
+
+## Getting Started
+
+The repository includes complete tutorial notebooks in the **`tutorials/`** directory that reproduce all analyses presented in the MINGL manuscript, including:
+
+- Border cell identification
+- Organizational interaction networks
+- Gradient and transition analyses
+- Organizational heterogeneity
+- Neighborhood resolution selection
+
+We recommend beginning with these tutorials before applying MINGL to your own spatial-omics datasets.
+
+---
+
+## Package Structure
+
+The package is organized into three primary modules:
+
+| Module | Description |
+|---------|-------------|
+| `mingl.pp` | Preprocessing utilities for preparing spatial datasets |
+| `mingl.tl` | Core analysis tools for probability estimation, border identification, gradients, interaction networks, heterogeneity analysis, and neighborhood selection |
+| `mingl.pl` | Publication-quality plotting functions for visualizing MINGL analyses |
+
+Additional resources include:
+
+- **`tutorials/`** – Jupyter notebooks reproducing the manuscript analyses
+- **`tests/`** – Unit tests
+- **`docs/`** – Documentation and figures
+- **`tools/`** – Utility scripts used throughout the package
+
+---
+
+## Dependencies
+
+MINGL automatically installs the required Python packages during installation.
+
+Core dependencies include:
+
+```
+anndata>=0.10,<0.13
+numpy>=1.26,<3
+pandas>=2.2,<3.0
+scipy>=1.12,<2
+scikit-learn>=1.4,<2
+matplotlib>=3.8,<4
+seaborn>=0.13,<0.14
+networkx>=3.2,<4
+tqdm>=4.66,<5
+session-info2
+```
+
+---
 
 ## Release Notes
 
 See the [changelog][].
 
-## Contact
+## Need Help?
 
-For questions and help requests, you can reach out to the authors.
-If you found a bug, please use the [issue tracker][].
+For installation questions, bug reports, or feature requests, please open an Issue on the GitHub repository:
+https://github.com/HickeyLab/Mingl/issues
 
 ## Citation
 
