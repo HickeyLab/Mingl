@@ -79,13 +79,25 @@ def run_mingl_over_n_clusters(
             raise KeyError(f"adata.obs missing required key '{k}'")
 
     df = adata.obs.copy()
-    df[knn_feature_cols] = df[knn_feature_cols].astype("float32")
 
-    per_cell_df = df[[x_key, y_key, region_key]].copy() if return_per_cell else None
+    # MINGL clustering should operate at float32 precision or higher.
+    # Do not allow float16 neighborhood features to propagate into
+    # StandardScaler / MiniBatchKMeans, as this can produce
+    # environment-dependent clustering results.
+    df[knn_feature_cols] = df[knn_feature_cols].astype(np.float32)
+    
+    per_cell_df = (
+        df[[x_key, y_key, region_key]].copy()
+        if return_per_cell
+        else None
+    )
     summary_rows = []
-
+    
+    # Explicitly construct the clustering matrix as float32.
+    X_raw = df[knn_feature_cols].to_numpy(dtype=np.float32)
+    
     scaler = StandardScaler()
-    X_scaled_all = scaler.fit_transform(df[knn_feature_cols].values)
+    X_scaled_all = scaler.fit_transform(X_raw).astype(np.float32)
 
     # Fit KMeans in a canonical order for reproducibility, then map labels back
     # to the caller's row order. Centroids/eval/summary are order-invariant given
