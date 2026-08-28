@@ -51,6 +51,8 @@ MINGL is implemented as an open-source Python package and is distributed through
 
 We strongly recommend installing MINGL into a **new Python virtual environment** to avoid dependency conflicts and ensure a reproducible software setup.
 
+Installation through either method automatically resolves and installs MINGL’s required Python dependencies, as specified in the package metadata; optional GPU-accelerated functionality requires installation of a compatible CuPy package separately.
+
 ---
 
 ## Step 1. Create a new Python environment
