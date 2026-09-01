@@ -5,3 +5,5 @@ dist/
 prompt.txt
 tutorials/prompt.txt
 reviewer_response_gradient_transition.md
+reviewer_response_emission_models.md
+EMISSION_MODELS_SPEC.md

@@ -1,0 +1,7 @@
+# Generated figures, tables and cached posteriors -- reproducible from the drivers.
+outputs/
+
+# Local-only helpers for turning the drivers' panels into a shareable set.
+# Not part of the analysis package.
+export_meeting_graphs.py
+build_meeting_page.py
