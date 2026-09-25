@@ -32,7 +32,6 @@ The other final simulation settings are `organization_difference=0.30`, `local_w
 - `SyntheticGradientTestFast(2).ipynb` — Full MINGL workflow for `synthetic_tissue_fast.csv`.
 - `SyntheticGradientTestMedium.ipynb` — Full MINGL workflow for `synthetic_tissue_medium.csv`.
 - `SyntheticGradientTestSlow.ipynb` — Full MINGL workflow for `synthetic_tissue_slow.csv`.
-- `SyntheticGradientTestMedium(2).py` — Python export of a gradient-analysis notebook. Despite its filename, the current script references the **fast** CSV and H5AD files; update those paths before using it for the medium dataset.
 
 The three gradient notebooks calculate neighborhood centroids, estimate per-cell A/B membership probabilities with the GPU GMM implementation (`k=10`), compute an A-to-B score, divide it into five equal-width probability levels, summarize those levels in 20-cell windows, and cluster the windows into five ordered gradient groups. They also create spatial, composition, and steepness plots and compare recovered neighborhood composition with the known ground truth.
 
