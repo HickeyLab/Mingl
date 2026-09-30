@@ -66,7 +66,7 @@ def KNN2(
 
     # Use the dummy columns as sum_cols (these ARE real columns in obs)
     sum_cols = dummies.columns.to_numpy()
-    values = adata.obs[sum_cols].to_numpy()
+    values = adata.obs[sum_cols].to_numpy(dtype=np.float32)
 
 
 
@@ -114,7 +114,7 @@ def KNN2(
 
             window = values[neighbors[chunk, :k].flatten()]
             window = window.reshape(len(chunk), k, len(sum_cols)).sum(axis=1)
-            out_dict[(tissue_name, k)] = (window.astype(np.float16), indices)
+            out_dict[(tissue_name, k)] = (window.astype(np.float32), indices)
 
     windows: Dict[int, pd.DataFrame] = {}
     for k in ks:

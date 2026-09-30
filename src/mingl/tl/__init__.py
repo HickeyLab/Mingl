@@ -9,6 +9,11 @@ from .crd import *
 from .ccd import *
 from .grad import *
 from .gb import *
+from .simulate import *
+from .sensitivity import *
 from .utils_adata import *
 from .compute_proportions import *
+from .emission_models import *
+from .model_comparison import *
+from .threshold_sensitivity import *
 #from .gmm_gpu import *
