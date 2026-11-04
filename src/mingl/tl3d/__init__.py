@@ -29,7 +29,7 @@ from .gmm import centroid_Calculation, cpu_gmm_probability, gpu_gmm_probability
 from .grad import Neighborhoods, mingl_neighborhoods_scverse
 from .ingest import cells_from_label_volume, label_centroids, read_label_volume
 from .knn import KNN, KNN2
-from .n_neighbors import run_mingl_over_n_clusters
+from .n_neighbors import fit_neighborhood_labels, run_mingl_over_n_clusters, score_partition
 from .sensitivity import gradient_sensitivity_analysis, run_gradient_transition, validate_ground_truth_recovery
 from .simulate import SHARPNESS_PRESETS, simulate_transition_tissue
 from .threshold import border_metrics_at_threshold, spatial_border_clustering_null, threshold_sensitivity_analysis
@@ -49,6 +49,7 @@ __all__ = [
     "compare_emission_models",
     "cpu_gmm_probability",
     "crd2",
+    "fit_neighborhood_labels",
     "gb",
     "gb_local_score_gradients",
     "get_coords",
@@ -63,6 +64,7 @@ __all__ = [
     "read_label_volume",
     "run_gradient_transition",
     "run_mingl_over_n_clusters",
+    "score_partition",
     "simulate_transition_tissue",
     "spatial_border_clustering_null",
     "spatial_keys",

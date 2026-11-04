@@ -268,6 +268,73 @@ def test_run_mingl_over_n_clusters_adds_z_and_matches_2d():
         tl3d.run_mingl_over_n_clusters(w2, feats, n_range=range(1, 2), plot_summary=False, z_key="z")
 
 
+def _sweep_windows(z=None):
+    base = _bands(z=z)
+    w = tl3d.KNN2(base, cluster_col=CT, ks=(10,))[10]
+    wa = ad.AnnData(obs=w.copy())
+    wa.obs_names = wa.obs.index.astype(str)
+    if z is not None:
+        wa.obs["z"] = base.obs["z"].values
+    return base, wa
+
+
+def test_sweep_reimplementation_matches_original_exactly():
+    """The tl3d sweep loop with clusterer="minibatch" is bit-identical to mingl.tl."""
+    from mingl.tl3d import n_neighbors as nn3
+
+    feats = ["A", "B", "C", "D"]
+    _, w_ref = _sweep_windows()
+    _, w_new = _sweep_windows()
+    s_ref, pc_ref = _quiet(tl.run_mingl_over_n_clusters, w_ref, feats, n_range=range(1, 5), plot_summary=False)
+    s_new, pc_new = nn3._sweep(
+        w_new, feats, range(1, 5), "Neighborhood_{}", True, coord_keys=["x", "y"], region_key=REG,
+        results_uns_key="mingl_n_clusters", cluster_row_order="original", order_key=None,
+        clusterer="minibatch", random_state=0, n_init=10,
+    )
+    pd.testing.assert_frame_equal(s_ref, s_new)
+    pd.testing.assert_frame_equal(pc_ref, pc_new)
+    for n in range(1, 5):
+        for col in (f"Neighborhood_{n}", f"log_likelihood_n{n}", f"assigned_prob_n{n}"):
+            pd.testing.assert_series_equal(w_ref.obs[col], w_new.obs[col])
+    assert w_new.uns["mingl_n_clusters"]["clusterer"] == "minibatch"
+
+
+def test_score_partition_reproduces_original_per_cell_scores():
+    feats = ["A", "B", "C", "D"]
+    _, w = _sweep_windows()
+    _quiet(tl.run_mingl_over_n_clusters, w, feats, n_range=range(3, 4), plot_summary=False)
+    ll, ap = tl3d.score_partition(w.obs[feats], w.obs["Neighborhood_3"].to_numpy(), 3)
+    np.testing.assert_array_equal(np.asarray(ll, np.float32), w.obs["log_likelihood_n3"].to_numpy())
+    np.testing.assert_array_equal(np.asarray(ap, np.float32), w.obs["assigned_prob_n3"].to_numpy())
+
+
+def test_kmeans_clusterer_runs_adds_z_and_is_seed_stable():
+    from sklearn.metrics import adjusted_rand_score
+
+    feats = ["A", "B", "C", "D"]
+    base, w0 = _sweep_windows(z="random")
+    _, w1 = _sweep_windows(z="random")
+    s0, pc0 = _quiet(tl3d.run_mingl_over_n_clusters, w0, feats, n_range=range(1, 5), plot_summary=False,
+                     z_key="z", clusterer="kmeans", random_state=0)
+    _quiet(tl3d.run_mingl_over_n_clusters, w1, feats, n_range=range(1, 5), plot_summary=False,
+           z_key="z", clusterer="kmeans", random_state=7)
+    assert list(pc0.columns[:4]) == ["x", "y", "z", REG]
+    assert list(s0.columns) == ["n_clusters", "avg_log_likelihood", "avg_assigned_probability"]
+    assert w0.uns["mingl_n_clusters"]["clusterer"] == "kmeans"
+    assert w0.uns["mingl_n_clusters"]["n_init"] == 10
+    # same partition from a different seed, and it recovers the three bands
+    assert adjusted_rand_score(w0.obs["Neighborhood_3"], w1.obs["Neighborhood_3"]) > 0.95
+    # bitwise reproducible with the same seed
+    X = np.asarray(w0.obs[feats], np.float32)
+    np.testing.assert_array_equal(tl3d.fit_neighborhood_labels(X, 3, clusterer="kmeans"),
+                                  tl3d.fit_neighborhood_labels(X, 3, clusterer="kmeans"))
+    assert adjusted_rand_score(w0.obs["Neighborhood_3"], base.obs[NB].to_numpy()) > 0.7
+    with pytest.raises(ValueError):
+        tl3d.run_mingl_over_n_clusters(w0, feats, n_range=range(1, 2), plot_summary=False, clusterer="agglomerative")
+    with pytest.raises(ValueError):
+        tl3d.fit_neighborhood_labels(np.zeros((5, 2), np.float32), 2, clusterer="x")
+
+
 # ---------------------------------------------------------------------------
 # Simulation
 # ---------------------------------------------------------------------------
